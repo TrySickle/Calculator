@@ -22,6 +22,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         display = (TextView) findViewById(R.id.display);
+        display.setHorizontallyScrolling(true);
+        display.setSingleLine(true);
+//        display.setMovementMethod(new ScrollingMovementMethod());
         operators = new ArrayList<>();
         terms = new ArrayList<>();
         initialize();
