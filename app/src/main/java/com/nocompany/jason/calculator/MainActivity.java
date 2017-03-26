@@ -7,10 +7,12 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class MainActivity extends Activity {
 
-    private static long[] terms;
-    private static String[] operators;
+    private static ArrayList<Term> terms;
+    private static ArrayList<Operator> operators;
     private int numOperators;
     private int numTerms;
     private TextView display;
@@ -20,67 +22,73 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         display = (TextView) findViewById(R.id.display);
-        display.setSelected(true);
-        operators = new String[10];
-        terms = new long[10];
-        terms[0] = 0;
-        numTerms = 1;
-        setDisplay(terms);
+        operators = new ArrayList<>();
+        terms = new ArrayList<>();
+        initialize();
+    }
+
+    private void initialize() {
+        terms.add(new Term(0L));
+        numTerms = terms.size();
+        updateDisplay();
     }
 
     public void numberClick(View view) {
-        TextView display = (TextView) findViewById(R.id.display);
-        String displayString;
+        increaseTerm(view);
+        updateDisplay();
+    }
+    
+    private void increaseTerm(View view) {
+        Number increase;
         switch (view.getId()) {
             case R.id.zero:
-                updateDisplay(0);
+                increase = 0L;
                 break;
             case R.id.one:
-                updateDisplay(1);
+                increase = 1L;
                 break;
             case R.id.two:
-                updateDisplay(2);
+                increase = 2L;
                 break;
             case R.id.three:
-                updateDisplay(3);
+                increase = 3L;
                 break;
             case R.id.four:
-                updateDisplay(4);
+                increase = 4L;
                 break;
             case R.id.five:
-                updateDisplay(5);
+                increase = 5L;
                 break;
             case R.id.six:
-                updateDisplay(6);
+                increase = 6L;
                 break;
             case R.id.seven:
-                updateDisplay(7);
+                increase = 7L;
                 break;
             case R.id.eight:
-                updateDisplay(8);
+                increase = 8L;
                 break;
             case R.id.nine:
-                updateDisplay(9);
+                increase = 9L;
                 break;
+            default:
+                increase = 0L;
         }
+        Term term = terms.get(numOperators);
+        term.multiplyValue(10);
+        term.addValue(increase);
+        updateDisplay();
     }
 
-    public void updateDisplay(long input) {
-        long term = terms[numOperators];
-        terms[numOperators] = term * 10 + input;
-
-        setDisplay(terms);
-    }
-
-    public void setDisplay(long[] terms) {
-        String displayString = "";
+    public void updateDisplay() {
+        String displayText = "";
         for (int i = 0; i < numTerms; i++) {
-            displayString += terms[i];
+            displayText += terms.get(i).getDisplay();
             if (i > 0) {
-                displayString += operators[i - 1];
+                displayText += operators.get(i - 1);
             }
         }
 
-        display.setText(displayString);
+        display.setText(displayText);
     }
 }

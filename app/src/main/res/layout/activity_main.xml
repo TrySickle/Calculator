@@ -11,11 +11,6 @@
     <TextView
         android:id="@+id/display"
         android:maxLines="1"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit ="marquee_forever"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:scrollHorizontally="true"
         android:layout_column="0"
         android:layout_row="0"
         android:layout_columnSpan="5"
