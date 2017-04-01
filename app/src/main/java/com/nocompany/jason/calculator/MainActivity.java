@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.method.MovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -16,15 +17,14 @@ public class MainActivity extends Activity {
     private int numOperators;
     private int numTerms;
     private TextView display;
+    private HorizontalScrollView scroll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         display = (TextView) findViewById(R.id.display);
-        display.setHorizontallyScrolling(true);
-        display.setSingleLine(true);
-//        display.setMovementMethod(new ScrollingMovementMethod());
+        scroll = (HorizontalScrollView) findViewById(R.id.scroll);
         operators = new ArrayList<>();
         terms = new ArrayList<>();
         initialize();
@@ -93,5 +93,6 @@ public class MainActivity extends Activity {
         }
 
         display.setText(displayText);
+        scroll.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
     }
 }
