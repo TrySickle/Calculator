@@ -2,20 +2,16 @@ package com.nocompany.jason.calculator;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.method.MovementMethod;
-import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class MainActivity extends Activity {
 
-    private static ArrayList<Term> terms;
-    private static ArrayList<Operator> operators;
-    private int numOperators;
-    private int numTerms;
+    private static LinkedList<Term> expression;
     private TextView display;
     private HorizontalScrollView scroll;
 
@@ -25,15 +21,24 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         display = (TextView) findViewById(R.id.display);
         scroll = (HorizontalScrollView) findViewById(R.id.scroll);
-        operators = new ArrayList<>();
-        terms = new ArrayList<>();
+        expression = new LinkedList<>();
         initialize();
     }
 
     private void initialize() {
-        terms.add(new Term(0L));
-        numTerms = terms.size();
+        expression.clear();
+        expression.add(new Operand(0L));
         updateDisplay();
+    }
+
+    public void cClick(View view) {
+        Term op = expression.peekLast();
+        ((Operand) op).setValue(0L);
+        updateDisplay();
+    }
+
+    public void acClick(View view) {
+        initialize();
     }
 
     public void numberClick(View view) {
@@ -77,19 +82,16 @@ public class MainActivity extends Activity {
             default:
                 increase = 0L;
         }
-        Term term = terms.get(numOperators);
-        term.multiplyValue(10);
-        term.addValue(increase);
+        Term op = expression.peekLast();
+        ((Operand) op).multiplyValue(10);
+        ((Operand) op).addValue(increase);
         updateDisplay();
     }
 
     public void updateDisplay() {
         String displayText = "";
-        for (int i = 0; i < numTerms; i++) {
-            displayText += terms.get(i).getDisplay();
-            if (i > 0) {
-                displayText += operators.get(i - 1);
-            }
+        for (Term t : expression) {
+            displayText += t;
         }
 
         display.setText(displayText);
