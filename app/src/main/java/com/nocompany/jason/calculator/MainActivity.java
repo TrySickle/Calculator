@@ -11,7 +11,7 @@ import java.util.LinkedList;
 
 public class MainActivity extends Activity {
 
-    private static LinkedList<Term> expression;
+    private static LinkedList<String> expression;
     private TextView display;
     private HorizontalScrollView scroll;
 
@@ -21,80 +21,94 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         display = (TextView) findViewById(R.id.display);
         scroll = (HorizontalScrollView) findViewById(R.id.scroll);
+        scroll.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                scroll.fullScroll(View.FOCUS_RIGHT);
+            }
+        });
         expression = new LinkedList<>();
         initialize();
     }
 
     private void initialize() {
         expression.clear();
-        expression.add(new Operand(0L));
         updateDisplay();
     }
 
-    public void cClick(View view) {
-        Term op = expression.peekLast();
-        ((Operand) op).setValue(0L);
-        updateDisplay();
+    public void delClick(View view) {
+        if (!expression.isEmpty()) {
+            expression.removeLast();
+            updateDisplay();
+        }
     }
 
     public void acClick(View view) {
         initialize();
     }
 
-    public void numberClick(View view) {
-        increaseTerm(view);
+    public void termClick(View view) {
+        expression.add(getTerm(view));
         updateDisplay();
     }
     
-    private void increaseTerm(View view) {
-        Number increase;
+    private String getTerm(View view) {
+        String term;
         switch (view.getId()) {
             case R.id.zero:
-                increase = 0L;
+                term = "0";
                 break;
             case R.id.one:
-                increase = 1L;
+                term = "1";
                 break;
             case R.id.two:
-                increase = 2L;
+                term = "2";
                 break;
             case R.id.three:
-                increase = 3L;
+                term = "3";
                 break;
             case R.id.four:
-                increase = 4L;
+                term = "4";
                 break;
             case R.id.five:
-                increase = 5L;
+                term = "5";
                 break;
             case R.id.six:
-                increase = 6L;
+                term = "6";
                 break;
             case R.id.seven:
-                increase = 7L;
+                term = "7";
                 break;
             case R.id.eight:
-                increase = 8L;
+                term = "8";
                 break;
             case R.id.nine:
-                increase = 9L;
+                term = "9";
+                break;
+            case R.id.multiply:
+                term = "\u00D7";
+                break;
+            case R.id.divide:
+                term = "\u00F7";
+                break;
+            case R.id.add:
+                term = "+";
+                break;
+            case R.id.subtract:
+                term = "\u2212";
                 break;
             default:
-                increase = 0L;
+                term = "0";
         }
-        Term op = expression.peekLast();
-        ((Operand) op).multiplyValue(10);
-        ((Operand) op).addValue(increase);
-        updateDisplay();
+        return term;
     }
 
     public void updateDisplay() {
         String displayText = "";
-        for (Term t : expression) {
+        for (String t : expression) {
             displayText += t;
         }
 
         display.setText(displayText);
-        scroll.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
     }
 }
