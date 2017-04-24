@@ -38,9 +38,22 @@ public class MainActivity extends Activity {
 
     public void delClick(View view) {
         if (!expression.isEmpty()) {
-            expression.removeLast();
+            String term = expression.getLast();
+            if (addNew(term)) {
+                expression.removeLast();
+            } else {
+                if (term.length() == 1) {
+                    expression.removeLast();
+                } else {
+                    expression.add(expression.removeLast().substring(0, term.length() - 1));
+                }
+            }
             updateDisplay();
         }
+    }
+
+    public boolean addNew(String s) {
+        return s.equals("+") || s.equals("\u00F7") || s.equals("\u00D7") || s.equals("\u2212");
     }
 
     public void acClick(View view) {
@@ -48,7 +61,14 @@ public class MainActivity extends Activity {
     }
 
     public void termClick(View view) {
-        expression.add(getTerm(view));
+        String term = getTerm(view);
+        if (expression.isEmpty()) {
+            expression.add(term);
+        } else if (addNew(term) || addNew(expression.getLast())){
+            expression.add(getTerm(view));
+        } else {
+            expression.add(expression.removeLast() + getTerm(view));
+        }
         updateDisplay();
     }
     
