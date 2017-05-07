@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.Stack;
 import java.util.LinkedList;
 
 public class MainActivity extends Activity {
@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    public boolean addNew(String s) {
+    private boolean addNew(String s) {
         return s.equals("+") || s.equals("\u00F7") || s.equals("\u00D7") || s.equals("\u2212");
     }
 
@@ -121,6 +121,65 @@ public class MainActivity extends Activity {
                 term = "0";
         }
         return term;
+    }
+
+    public void equalClick(View view) {
+        Stack<String> stack = new Stack<>();
+        LinkedList<String> postfix = new LinkedList<>();
+        while (!expression.isEmpty()) {
+            String s = expression.remove();
+            if (isOperator(s)) {
+                while (!stack.isEmpty() && higherOrEqualPrecedence(stack.peek(), s)) {
+                    postfix.add(stack.pop());
+                }
+                stack.push(s);
+            } else {
+                postfix.add(s);
+            }
+        }
+
+        while (!stack.isEmpty()) {
+            postfix.add(stack.pop());
+        }
+        expression = postfix;
+        for (String s : expression) {
+            System.out.print(s + " ");
+        }
+        System.out.println();
+    }
+
+    private boolean higherOrEqualPrecedence(String x, String y) {
+        return getPrecedence(x) - getPrecedence(y) >= 0;
+    }
+
+    private int getPrecedence(String x) {
+        switch (x) {
+            case "\u00D7":
+                return 1;
+            case "\u00F7":
+                return 1;
+            case "+":
+                return 0;
+            case "\u2212":
+                return 0;
+            default:
+                return 0;
+        }
+    }
+
+    private boolean isOperator(String s) {
+        switch (s) {
+            case "\u00D7":
+                return true;
+            case "\u00F7":
+                return true;
+            case "+":
+                return true;
+            case "\u2212":
+                return true;
+            default:
+                return false;
+        }
     }
 
     public void updateDisplay() {
