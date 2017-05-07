@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
         String term = getTerm(view);
         if (expression.isEmpty()) {
             expression.add(term);
-        } else if (addNew(term) || addNew(expression.getLast())){
+        } else if (addNew(term) || addNew(expression.getLast())) {
             expression.add(getTerm(view));
         } else {
             expression.add(expression.removeLast() + getTerm(view));
@@ -125,27 +125,107 @@ public class MainActivity extends Activity {
 
     public void equalClick(View view) {
         Stack<String> stack = new Stack<>();
-        LinkedList<String> postfix = new LinkedList<>();
-        while (!expression.isEmpty()) {
+        int size = expression.size();
+        for (int i = 0; i < size; i++) {
             String s = expression.remove();
             if (isOperator(s)) {
                 while (!stack.isEmpty() && higherOrEqualPrecedence(stack.peek(), s)) {
-                    postfix.add(stack.pop());
+                    expression.add(stack.pop());
                 }
                 stack.push(s);
             } else {
-                postfix.add(s);
+                expression.add(s);
             }
         }
 
         while (!stack.isEmpty()) {
-            postfix.add(stack.pop());
+            expression.add(stack.pop());
         }
-        expression = postfix;
-        for (String s : expression) {
-            System.out.print(s + " ");
+        evaluateExpression();
+        updateDisplay();
+    }
+
+    private void evaluateExpression() {
+        Stack<String> stack = new Stack<>();
+        while (!expression.isEmpty()) {
+            String s = expression.remove();
+            if (isOperator(s)) {
+                String top1 = stack.pop();
+                String top2 = stack.pop();
+                stack.push(operate(top1, top2, s));
+            } else {
+                stack.add(s);
+            }
         }
-        System.out.println();
+        expression.add(stack.pop());
+    }
+
+    private String operate(String x, String y, String o) {
+        switch (o) {
+            case "\u00D7":
+                return multiply(x, y);
+            case "\u00F7":
+                return divide(y, x);
+            case "+":
+                return add(x, y);
+            case "\u2212":
+                return subtract(y, x);
+            default:
+                return "0";
+        }
+    }
+
+    private String multiply(String x, String y) {
+        double i = Double.parseDouble(x);
+        double j = Double.parseDouble(y);
+        double k = i * j;
+        if (isInt(k)) {
+            return String.valueOf((int) k);
+        } else {
+            return String.valueOf(k);
+        }
+    }
+
+    private String divide(String x, String y) {
+        double i = Double.parseDouble(x);
+        double j = Double.parseDouble(y);
+        double k = i / j;
+        if (isInt(k)) {
+            return String.valueOf((int) k);
+        } else {
+            return String.valueOf(k);
+        }
+    }
+
+    private String add(String x, String y) {
+        double i = Double.parseDouble(x);
+        double j = Double.parseDouble(y);
+        double k = i + j;
+        if (isInt(k)) {
+            return String.valueOf((int) k);
+        } else {
+            return String.valueOf(k);
+        }
+    }
+
+    private String subtract(String x, String y) {
+        double i = Double.parseDouble(x);
+        double j = Double.parseDouble(y);
+        double k = i - j;
+        if (isInt(k)) {
+            return String.valueOf((int) k);
+        } else {
+            return String.valueOf(k);
+        }
+    }
+
+    private boolean isInt(String x) {
+        double d = Double.valueOf(x);
+        return d == (int) d;
+    }
+
+    private boolean isInt(double x) {
+        return x == (int) x;
     }
 
     private boolean higherOrEqualPrecedence(String x, String y) {
