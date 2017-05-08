@@ -20,6 +20,7 @@ public class MainActivity extends Activity {
     private HorizontalScrollView scroll;
     private boolean pointed;
     private String ans;
+    //private int numLeftPar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,7 @@ public class MainActivity extends Activity {
     private void initialize() {
         pointed = false;
         ans = "0";
+        //numLeftPar = 0;
         expression.clear();
         updateDisplay();
     }
@@ -48,6 +50,9 @@ public class MainActivity extends Activity {
         if (!expression.isEmpty()) {
             String term = expression.getLast();
             if (isOperator(term)) {
+//                if (term.equals("(")) {
+//                    numLeftPar--;
+//                }
                 expression.removeLast();
             } else {
                 if (term.length() == 1) {
@@ -152,6 +157,13 @@ public class MainActivity extends Activity {
             case R.id.ans:
                 term = ans;
                 break;
+//            case R.id.leftPar:
+//                term = "(";
+//                numLeftPar++;
+//                break;
+//            case R.id.rightPar:
+//                term = ")";
+//                break;
             case R.id.multiply:
                 term = "\u00D7";
                 break;
@@ -305,6 +317,10 @@ public class MainActivity extends Activity {
             case "\u2212":
                 return true;
             case ".":
+                return true;
+            case "(":
+                return true;
+            case ")":
                 return true;
             default:
                 return false;
