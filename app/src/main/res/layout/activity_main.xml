@@ -22,13 +22,41 @@
             android:textSize="80sp"/>
     </HorizontalScrollView>
 
+    <Button
+        android:id="@+id/shift"
+        android:layout_marginLeft="20dp"
+        android:layout_rowWeight="1"
+        android:layout_column="0"
+        android:layout_row="1"
+        android:layout_columnWeight="1"
+        android:textSize="14sp"
+        android:text="SHIFT"
+        android:onClick="termClick"/>
+
+    <Button
+        android:id="@+id/leftPar"
+        android:layout_column="1"
+        android:layout_row="1"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:text="("
+        android:onClick="termClick"/>
+
+    <Button
+        android:id="@+id/rightPar"
+        android:layout_column="2"
+        android:layout_row="1"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:text=")"
+        android:onClick="termClick"/>
 
     <Button
         android:id="@+id/seven"
         android:layout_marginLeft="20dp"
         android:layout_rowWeight="1"
         android:layout_column="0"
-        android:layout_row="1"
+        android:layout_row="2"
         android:layout_columnWeight="1"
         android:text="7"
         android:onClick="termClick"/>
@@ -36,7 +64,7 @@
     <Button
         android:id="@+id/eight"
         android:layout_column="1"
-        android:layout_row="1"
+        android:layout_row="2"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
         android:text="8"
@@ -45,7 +73,7 @@
     <Button
         android:id="@+id/nine"
         android:layout_column="2"
-        android:layout_row="1"
+        android:layout_row="2"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
         android:text="9"
@@ -74,7 +102,7 @@
         android:id="@+id/four"
         android:layout_marginLeft="20dp"
         android:layout_column="0"
-        android:layout_row="2"
+        android:layout_row="3"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
         android:text="4"
@@ -83,7 +111,7 @@
     <Button
         android:id="@+id/five"
         android:layout_column="1"
-        android:layout_row="2"
+        android:layout_row="3"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
         android:text="5"
@@ -92,7 +120,7 @@
     <Button
         android:id="@+id/six"
         android:layout_column="2"
-        android:layout_row="2"
+        android:layout_row="3"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
         android:text="6"
@@ -121,7 +149,7 @@
         android:id="@+id/one"
         android:layout_marginLeft="20dp"
         android:layout_column="0"
-        android:layout_row="3"
+        android:layout_row="4"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
         android:text="1"
@@ -130,7 +158,7 @@
     <Button
         android:id="@+id/two"
         android:layout_column="1"
-        android:layout_row="3"
+        android:layout_row="4"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
         android:text="2"
@@ -139,7 +167,7 @@
     <Button
         android:id="@+id/three"
         android:layout_column="2"
-        android:layout_row="3"
+        android:layout_row="4"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
         android:text="3"
@@ -167,7 +195,7 @@
     <Button
         android:id="@+id/zero"
         android:layout_column="0"
-        android:layout_row="4"
+        android:layout_row="5"
         android:layout_marginLeft="20dp"
         android:layout_marginBottom="20dp"
         android:layout_rowWeight="1"
@@ -178,28 +206,41 @@
     <Button
         android:id="@+id/point"
         android:layout_column="1"
-        android:layout_row="4"
+        android:layout_row="5"
         android:layout_marginBottom="20dp"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="."/>
+        android:text="."
+        android:onClick="termClick"/>
 
     <Button
         android:id="@+id/negate"
         android:layout_column="2"
-        android:layout_row="4"
+        android:layout_row="5"
         android:layout_marginBottom="20dp"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="+/-"/>
+        android:text="+/-"
+        android:onClick="negateClick"/>
+
+    <Button
+        android:id="@+id/ans"
+        android:layout_column="3"
+        android:layout_row="4"
+        android:layout_columnSpan="2"
+        android:layout_marginRight="20dp"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:text="ANS"
+        android:onClick="termClick"/>
 
     <Button
         android:id="@+id/equals"
         android:layout_column="3"
-        android:layout_row="4"
+        android:layout_row="5"
+        android:layout_columnSpan="2"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
-        android:layout_columnSpan="2"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
         android:text="="

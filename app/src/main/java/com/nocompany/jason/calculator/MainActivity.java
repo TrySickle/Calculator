@@ -6,14 +6,20 @@ import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.Stack;
 import java.util.LinkedList;
+
+import java.math.BigDecimal;
 
 public class MainActivity extends Activity {
 
     private static LinkedList<String> expression;
     private TextView display;
     private HorizontalScrollView scroll;
+    private boolean pointed;
+    private String ans;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +38,8 @@ public class MainActivity extends Activity {
     }
 
     private void initialize() {
+        pointed = false;
+        ans = "0";
         expression.clear();
         updateDisplay();
     }
@@ -39,7 +47,7 @@ public class MainActivity extends Activity {
     public void delClick(View view) {
         if (!expression.isEmpty()) {
             String term = expression.getLast();
-            if (addNew(term)) {
+            if (isOperator(term)) {
                 expression.removeLast();
             } else {
                 if (term.length() == 1) {
@@ -52,22 +60,55 @@ public class MainActivity extends Activity {
         }
     }
 
-    private boolean addNew(String s) {
-        return s.equals("+") || s.equals("\u00F7") || s.equals("\u00D7") || s.equals("\u2212");
-    }
-
     public void acClick(View view) {
         initialize();
     }
 
+    public void negateClick(View view) {
+        if (!expression.isEmpty() && !isOperator(expression.getLast())) {
+            if (pointed) {
+                Iterator<String> reverseIter = expression.descendingIterator();
+                reverseIter.next();
+                reverseIter.next();
+                String beforeDecimal = reverseIter.next();
+                BigDecimal before = new BigDecimal(beforeDecimal);
+                BigDecimal negated = before.negate();
+                expression.set(expression.size() - 3, negated.toString());
+            } else {
+                BigDecimal last = new BigDecimal(expression.getLast());
+                BigDecimal negated = last.negate();
+                expression.set(expression.size() - 1, negated.toString());
+            }
+            updateDisplay();
+        }
+    }
+
     public void termClick(View view) {
         String term = getTerm(view);
-        if (expression.isEmpty()) {
-            expression.add(term);
-        } else if (addNew(term) || addNew(expression.getLast())) {
-            expression.add(getTerm(view));
-        } else {
-            expression.add(expression.removeLast() + getTerm(view));
+        if (expression.isEmpty()) { // empty cases
+            if (!isOperator(term)) {
+                expression.add(term);
+                pointed = false;
+            }
+        } else if (!isOperator(term)) { // nonempty cases, term is a number
+            if (isOperator(expression.getLast())) { // adding a new number term
+                pointed = expression.getLast().equals(".");
+                expression.add(term);
+            } else { // increasing number
+                expression.add(expression.removeLast() + getTerm(view));
+            }
+        } else { // nonempty, term is an operator
+            if (!isOperator(expression.getLast())) { // can't have two operators in a row
+                if (term.equals(".")) {
+                    if (!pointed) {
+                        expression.add(term);
+                        pointed = true;
+                    }
+                } else {
+                    expression.add(term);
+                    pointed = false;
+                }
+            }
         }
         updateDisplay();
     }
@@ -105,6 +146,12 @@ public class MainActivity extends Activity {
             case R.id.nine:
                 term = "9";
                 break;
+            case R.id.point:
+                term =".";
+                break;
+            case R.id.ans:
+                term = ans;
+                break;
             case R.id.multiply:
                 term = "\u00D7";
                 break;
@@ -124,6 +171,10 @@ public class MainActivity extends Activity {
     }
 
     public void equalClick(View view) {
+        for (String s : expression) {
+            System.out.print(s + " ");
+        }
+        System.out.println();
         Stack<String> stack = new Stack<>();
         int size = expression.size();
         for (int i = 0; i < size; i++) {
@@ -157,7 +208,8 @@ public class MainActivity extends Activity {
                 stack.add(s);
             }
         }
-        expression.add(stack.pop());
+        ans = stack.pop();
+        expression.add(ans);
     }
 
     private String operate(String x, String y, String o) {
@@ -165,58 +217,51 @@ public class MainActivity extends Activity {
             case "\u00D7":
                 return multiply(x, y);
             case "\u00F7":
-                return divide(y, x);
+                return divide(x, y);
             case "+":
                 return add(x, y);
             case "\u2212":
-                return subtract(y, x);
+                return subtract(x, y);
+            case ".":
+                return point(x, y);
             default:
                 return "0";
         }
     }
 
     private String multiply(String x, String y) {
-        double i = Double.parseDouble(x);
-        double j = Double.parseDouble(y);
-        double k = i * j;
-        if (isInt(k)) {
-            return String.valueOf((int) k);
-        } else {
-            return String.valueOf(k);
-        }
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal j = new BigDecimal(y);
+        BigDecimal k = i.multiply(j);
+        return k.toString();
     }
 
     private String divide(String x, String y) {
-        double i = Double.parseDouble(x);
-        double j = Double.parseDouble(y);
-        double k = i / j;
-        if (isInt(k)) {
-            return String.valueOf((int) k);
-        } else {
-            return String.valueOf(k);
-        }
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal j = new BigDecimal(y);
+        BigDecimal k = j.divide(i, java.math.MathContext.DECIMAL64);
+        return k.toString();
     }
 
     private String add(String x, String y) {
-        double i = Double.parseDouble(x);
-        double j = Double.parseDouble(y);
-        double k = i + j;
-        if (isInt(k)) {
-            return String.valueOf((int) k);
-        } else {
-            return String.valueOf(k);
-        }
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal j = new BigDecimal(y);
+        BigDecimal k = i.add(j);
+        return k.toString();
+    }
+
+    private String point(String x, String y) {
+        BigDecimal i = new BigDecimal(y);
+        BigDecimal j = new BigDecimal("0." + x);
+        BigDecimal k = i.add(j);
+        return k.toString();
     }
 
     private String subtract(String x, String y) {
-        double i = Double.parseDouble(x);
-        double j = Double.parseDouble(y);
-        double k = i - j;
-        if (isInt(k)) {
-            return String.valueOf((int) k);
-        } else {
-            return String.valueOf(k);
-        }
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal j = new BigDecimal(y);
+        BigDecimal k = j.subtract(i);
+        return k.toString();
     }
 
     private boolean isInt(String x) {
@@ -234,6 +279,8 @@ public class MainActivity extends Activity {
 
     private int getPrecedence(String x) {
         switch (x) {
+            case ".":
+                return 2;
             case "\u00D7":
                 return 1;
             case "\u00F7":
@@ -256,6 +303,8 @@ public class MainActivity extends Activity {
             case "+":
                 return true;
             case "\u2212":
+                return true;
+            case ".":
                 return true;
             default:
                 return false;
