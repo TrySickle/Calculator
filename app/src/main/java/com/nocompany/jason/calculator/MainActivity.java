@@ -1,75 +1,79 @@
 package com.nocompany.jason.calculator;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.HorizontalScrollView;
-import android.widget.TextView;
 
-import java.util.Deque;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.LinkedList;
 
 import java.math.BigDecimal;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements
+        OnFragmentInteractionListener {
 
     private static LinkedList<String> expression;
-    private TextView display;
-    private HorizontalScrollView scroll;
     private boolean pointed;
     private String ans;
-    //private int numLeftPar;
+    private DisplayFragment displayFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        display = (TextView) findViewById(R.id.display);
-        scroll = (HorizontalScrollView) findViewById(R.id.scroll);
-        scroll.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                scroll.fullScroll(View.FOCUS_RIGHT);
-            }
-        });
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.add(R.id.display_container, new DisplayFragment(), "Display");
+        ft.add(R.id.button_container, new ButtonFragment(), "Button");
+        ft.commit();
+        getFragmentManager().executePendingTransactions();
+        displayFragment = (DisplayFragment)
+                getFragmentManager().findFragmentByTag("Display");
         expression = new LinkedList<>();
-        initialize();
+        pointed = false;
+        ans = "0";
     }
 
     private void initialize() {
         pointed = false;
-        ans = "0";
-        //numLeftPar = 0;
         expression.clear();
-        updateDisplay();
+        displayFragment.updateDisplay(expression);
     }
 
-    public void delClick(View view) {
+    public void shiftClick() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        if (getFragmentManager().findFragmentByTag("Button") != null) {
+            ft.replace(R.id.button_container, new ShiftFragment());
+        } else {
+            ft.replace(R.id.button_container, new ButtonFragment(), "Button");
+        }
+        ft.commit();
+    }
+
+    public void delClick() {
         if (!expression.isEmpty()) {
             String term = expression.getLast();
             if (isOperator(term)) {
-//                if (term.equals("(")) {
-//                    numLeftPar--;
-//                }
                 expression.removeLast();
             } else {
                 if (term.length() == 1) {
                     expression.removeLast();
                 } else {
-                    expression.add(expression.removeLast().substring(0, term.length() - 1));
+                    expression.add(
+                            expression.removeLast().
+                            substring(0, term.length() - 1));
                 }
             }
-            updateDisplay();
+            displayFragment.updateDisplay(expression);
         }
     }
 
-    public void acClick(View view) {
+    public void acClick() {
         initialize();
     }
 
-    public void negateClick(View view) {
+    public void negateClick() {
         if (!expression.isEmpty() && !isOperator(expression.getLast())) {
             if (pointed) {
                 Iterator<String> reverseIter = expression.descendingIterator();
@@ -84,7 +88,7 @@ public class MainActivity extends Activity {
                 BigDecimal negated = last.negate();
                 expression.set(expression.size() - 1, negated.toString());
             }
-            updateDisplay();
+            displayFragment.updateDisplay(expression);
         }
     }
 
@@ -103,7 +107,8 @@ public class MainActivity extends Activity {
                 expression.add(expression.removeLast() + getTerm(view));
             }
         } else { // nonempty, term is an operator
-            if (!isOperator(expression.getLast())) { // can't have two operators in a row
+            // can't have two operators in a row
+            if (!isOperator(expression.getLast())) {
                 if (term.equals(".")) {
                     if (!pointed) {
                         expression.add(term);
@@ -115,74 +120,67 @@ public class MainActivity extends Activity {
                 }
             }
         }
-        updateDisplay();
+        displayFragment.updateDisplay(expression);
     }
     
     private String getTerm(View view) {
         String term;
         switch (view.getId()) {
-            case R.id.zero:
-                term = "0";
-                break;
-            case R.id.one:
-                term = "1";
-                break;
-            case R.id.two:
-                term = "2";
-                break;
-            case R.id.three:
-                term = "3";
-                break;
-            case R.id.four:
-                term = "4";
-                break;
-            case R.id.five:
-                term = "5";
-                break;
-            case R.id.six:
-                term = "6";
-                break;
-            case R.id.seven:
-                term = "7";
-                break;
-            case R.id.eight:
-                term = "8";
-                break;
-            case R.id.nine:
-                term = "9";
-                break;
-            case R.id.point:
-                term =".";
-                break;
-            case R.id.ans:
-                term = ans;
-                break;
-//            case R.id.leftPar:
-//                term = "(";
-//                numLeftPar++;
-//                break;
-//            case R.id.rightPar:
-//                term = ")";
-//                break;
-            case R.id.multiply:
-                term = "\u00D7";
-                break;
-            case R.id.divide:
-                term = "\u00F7";
-                break;
-            case R.id.add:
-                term = "+";
-                break;
-            case R.id.subtract:
-                term = "\u2212";
-                break;
-            default:
-                term = "0";
+        case R.id.zero:
+            term = "0";
+            break;
+        case R.id.one:
+            term = "1";
+            break;
+        case R.id.two:
+            term = "2";
+            break;
+        case R.id.three:
+            term = "3";
+            break;
+        case R.id.four:
+            term = "4";
+            break;
+        case R.id.five:
+            term = "5";
+            break;
+        case R.id.six:
+            term = "6";
+            break;
+        case R.id.seven:
+            term = "7";
+            break;
+        case R.id.eight:
+            term = "8";
+            break;
+        case R.id.nine:
+            term = "9";
+            break;
+        case R.id.point:
+            term = ".";
+            break;
+        case R.id.ans:
+            term = ans;
+            break;
+        case R.id.multiply:
+            term = "\u00D7";
+            break;
+        case R.id.divide:
+            term = "\u00F7";
+            break;
+        case R.id.add:
+            term = "+";
+            break;
+        case R.id.subtract:
+            term = "\u2212";
+            break;
+        default:
+            term = "0";
         }
         return term;
     }
 
-    public void equalClick(View view) {
+    public void equalClick() {
         for (String s : expression) {
             System.out.print(s + " ");
         }
@@ -192,7 +190,8 @@ public class MainActivity extends Activity {
         for (int i = 0; i < size; i++) {
             String s = expression.remove();
             if (isOperator(s)) {
-                while (!stack.isEmpty() && higherOrEqualPrecedence(stack.peek(), s)) {
+                while (!stack.isEmpty()
+                        && higherOrEqualPrecedence(stack.peek(), s)) {
                     expression.add(stack.pop());
                 }
                 stack.push(s);
@@ -205,7 +204,7 @@ public class MainActivity extends Activity {
             expression.add(stack.pop());
         }
         evaluateExpression();
-        updateDisplay();
+        displayFragment.updateDisplay(expression);
     }
 
     private void evaluateExpression() {
@@ -226,18 +225,18 @@ public class MainActivity extends Activity {
 
     private String operate(String x, String y, String o) {
         switch (o) {
-            case "\u00D7":
-                return multiply(x, y);
-            case "\u00F7":
-                return divide(x, y);
-            case "+":
-                return add(x, y);
-            case "\u2212":
-                return subtract(x, y);
-            case ".":
-                return point(x, y);
-            default:
-                return "0";
+        case "\u00D7":
+            return multiply(x, y);
+        case "\u00F7":
+            return divide(x, y);
+        case "+":
+            return add(x, y);
+        case "\u2212":
+            return subtract(x, y);
+        case ".":
+            return point(x, y);
+        default:
+            return "0";
         }
     }
 
@@ -265,6 +264,9 @@ public class MainActivity extends Activity {
     private String point(String x, String y) {
         BigDecimal i = new BigDecimal(y);
         BigDecimal j = new BigDecimal("0." + x);
+        if (i.compareTo(BigDecimal.ZERO) < 0) {
+            j = j.negate();
+        }
         BigDecimal k = i.add(j);
         return k.toString();
     }
@@ -291,48 +293,39 @@ public class MainActivity extends Activity {
 
     private int getPrecedence(String x) {
         switch (x) {
-            case ".":
-                return 2;
-            case "\u00D7":
-                return 1;
-            case "\u00F7":
-                return 1;
-            case "+":
-                return 0;
-            case "\u2212":
-                return 0;
-            default:
-                return 0;
+        case ".":
+            return 2;
+        case "\u00D7":
+            return 1;
+        case "\u00F7":
+            return 1;
+        case "+":
+            return 0;
+        case "\u2212":
+            return 0;
+        default:
+            return 0;
         }
     }
 
     private boolean isOperator(String s) {
         switch (s) {
-            case "\u00D7":
-                return true;
-            case "\u00F7":
-                return true;
-            case "+":
-                return true;
-            case "\u2212":
-                return true;
-            case ".":
-                return true;
-            case "(":
-                return true;
-            case ")":
-                return true;
-            default:
-                return false;
+        case "\u00D7":
+            return true;
+        case "\u00F7":
+            return true;
+        case "+":
+            return true;
+        case "\u2212":
+            return true;
+        case ".":
+            return true;
+        case "(":
+            return true;
+        case ")":
+            return true;
+        default:
+            return false;
         }
-    }
-
-    public void updateDisplay() {
-        String displayText = "";
-        for (String t : expression) {
-            displayText += t;
-        }
-
-        display.setText(displayText);
     }
 }
