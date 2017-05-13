@@ -8,12 +8,13 @@
     <Button
         android:id="@+id/shift"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:layout_rowWeight="1"
         android:layout_column="0"
         android:layout_row="1"
         android:layout_columnWeight="1"
         android:textSize="14sp"
-        android:text="SHIFT" />
+        android:text="@string/shift" />
 
     <Button
         android:id="@+id/leftPar"
@@ -21,7 +22,7 @@
         android:layout_row="1"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="adsf" />
+        android:text="@string/leftPar" />
 
     <Button
         android:id="@+id/rightPar"
@@ -29,32 +30,7 @@
         android:layout_row="1"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text=")" />
-
-    <Button
-        android:id="@+id/seven"
-        android:layout_marginLeft="20dp"
-        android:layout_rowWeight="1"
-        android:layout_column="0"
-        android:layout_row="2"
-        android:layout_columnWeight="1"
-        android:text="7" />
-
-    <Button
-        android:id="@+id/eight"
-        android:layout_column="1"
-        android:layout_row="2"
-        android:layout_rowWeight="1"
-        android:layout_columnWeight="1"
-        android:text="8" />
-
-    <Button
-        android:id="@+id/nine"
-        android:layout_column="2"
-        android:layout_row="2"
-        android:layout_rowWeight="1"
-        android:layout_columnWeight="1"
-        android:text="9" />
+        android:text="@string/rightPar" />
 
     <Button
         android:id="@+id/del"
@@ -62,138 +38,184 @@
         android:layout_row="1"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="DEL" />
+        android:text="@string/del" />
 
     <Button
         android:id="@+id/allClear"
         android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
         android:layout_column="4"
         android:layout_row="1"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="AC" />
+        android:text="@string/ac" />
 
     <Button
-        android:id="@+id/four"
+        android:id="@+id/squared"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_rowWeight="1"
         android:layout_column="0"
-        android:layout_row="3"
-        android:layout_rowWeight="1"
+        android:layout_row="2"
         android:layout_columnWeight="1"
-        android:text="4" />
+        android:text="@string/squared" />
 
     <Button
-        android:id="@+id/five"
+        android:id="@+id/square_root"
         android:layout_column="1"
-        android:layout_row="3"
+        android:layout_row="2"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="5" />
+        android:text="@string/square_root" />
 
     <Button
-        android:id="@+id/six"
+        android:id="@+id/exponent"
         android:layout_column="2"
-        android:layout_row="3"
+        android:layout_row="2"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="6" />
+        android:text="@string/exponent" />
 
     <Button
-        android:id="@+id/multiply"
+        android:id="@+id/log"
         android:layout_column="3"
         android:layout_row="2"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="\u00D7" />
+        android:text="@string/log" />
 
     <Button
-        android:id="@+id/divide"
+        android:id="@+id/ln"
         android:layout_column="4"
         android:layout_row="2"
         android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="\u00F7" />
+        android:text="@string/ln" />
 
     <Button
-        android:id="@+id/one"
+        android:id="@+id/sin"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:layout_column="0"
-        android:layout_row="4"
+        android:layout_row="3"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="1" />
+        android:text="@string/sin" />
 
     <Button
-        android:id="@+id/two"
+        android:id="@+id/cos"
         android:layout_column="1"
-        android:layout_row="4"
+        android:layout_row="3"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="2" />
+        android:text="@string/cos" />
 
     <Button
-        android:id="@+id/three"
+        android:id="@+id/tan"
         android:layout_column="2"
-        android:layout_row="4"
+        android:layout_row="3"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="3" />
+        android:text="@string/tan" />
 
     <Button
-        android:id="@+id/add"
+        android:id="@+id/ten_exponent"
         android:layout_column="3"
         android:layout_row="3"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="+" />
+        android:text="@string/ten_exponent" />
 
     <Button
-        android:id="@+id/subtract"
+        android:id="@+id/e_exponent"
         android:layout_column="4"
         android:layout_row="3"
         android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="\u2212" />
+        android:text="@string/e_exponent" />
 
     <Button
-        android:id="@+id/zero"
+        android:id="@+id/arcsin"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_column="0"
+        android:layout_row="4"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:textSize="17sp"
+        android:text="@string/arcsin" />
+
+    <Button
+        android:id="@+id/arccos"
+        android:layout_column="1"
+        android:layout_row="4"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:textSize="17sp"
+        android:text="@string/arccos" />
+
+    <Button
+        android:id="@+id/arctan"
+        android:layout_column="2"
+        android:layout_row="4"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:textSize="17sp"
+        android:text="@string/arctan" />
+
+    <Button
+        android:id="@+id/cube_root"
+        android:layout_column="3"
+        android:layout_row="4"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:text="@string/cube_root" />
+
+    <Button
+        android:id="@+id/pi"
+        android:layout_column="4"
+        android:layout_row="4"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:text="@string/pi" />
+
+
+    <Button
+        android:id="@+id/factorial"
         android:layout_column="0"
         android:layout_row="5"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:layout_marginBottom="20dp"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="0" />
+        android:text="@string/factorial" />
 
     <Button
-        android:id="@+id/point"
+        android:id="@+id/permutation"
         android:layout_column="1"
         android:layout_row="5"
         android:layout_marginBottom="20dp"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="." />
+        android:textSize="17sp"
+        android:text="@string/permutation" />
 
     <Button
-        android:id="@+id/negate"
+        android:id="@+id/combination"
         android:layout_column="2"
         android:layout_row="5"
         android:layout_marginBottom="20dp"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="+/-" />
-
-    <Button
-        android:id="@+id/ans"
-        android:layout_column="3"
-        android:layout_row="4"
-        android:layout_columnSpan="2"
-        android:layout_marginRight="20dp"
-        android:layout_rowWeight="1"
-        android:layout_columnWeight="1"
-        android:text="ANS" />
+        android:textSize="17sp"
+        android:text="@string/combination" />
 
     <Button
         android:id="@+id/equals"
@@ -201,8 +223,9 @@
         android:layout_row="5"
         android:layout_columnSpan="2"
         android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
         android:layout_rowWeight="1"
         android:layout_columnWeight="1"
-        android:text="=" />
+        android:text="@string/equals" />
 </GridLayout>

@@ -10,7 +10,35 @@
     <string name="seven">7</string>>
     <string name="eight">8</string>>
     <string name="nine">9</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="shift">SHIFT</string>
+    <string name="leftPar">(</string>
+    <string name="rightPar">)</string>
+    <string name="del">DEL</string>
+    <string name="ac">AC</string>
+    <string name="multiply">\u00D7</string>
+    <string name="divide">\u00F7</string>
+    <string name="add">+</string>
+    <string name="subtract">\u2212</string>
+    <string name="equals">=</string>
+    <string name="ans">ANS</string>
+    <string name="negate">+/-</string>
+    <string name="point">.</string>
+    <string name="squared">x\u00B2</string>
+    <string name="square_root">\u221A</string>
+    <string name="exponent">x\u207F</string>
+    <string name="log">log</string>
+    <string name="ln">ln</string>
+    <string name="ten_exponent">10\u02E3</string>
+    <string name="e_exponent">\u212F\u02E3</string>
+    <string name="sin">sin</string>
+    <string name="cos">cos</string>
+    <string name="tan">tan</string>
+    <string name="arcsin">sin\u207B\u00B9</string>
+    <string name="arccos">cos\u207B\u00B9</string>
+    <string name="arctan">tan\u207B\u00B9</string>
+    <string name="cube_root">\u221B</string>
+    <string name="factorial">\u0021</string>
+    <string name="pi">\u03C0</string>
+    <string name="permutation">nPr</string>
+    <string name="combination">nCr</string>
 </resources>

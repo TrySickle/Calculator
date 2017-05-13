@@ -241,15 +241,12 @@ public class MainActivity extends Activity implements
             if (isOperator(s)) {
                 if (s.equals("(")) {
                     stack.add(s);
-                    System.out.println("left");
                 } else if (s.equals(")")) {
-                    System.out.println("right");
                     while (!stack.peek().equals("(")) {
                         expression.add(stack.pop());
                     }
                     stack.pop();
                 } else {
-                    System.out.println("else");
                     while (!stack.isEmpty()
                             && higherOrEqualPrecedence(stack.peek(), s)) {
                         expression.add(stack.pop());
@@ -258,7 +255,6 @@ public class MainActivity extends Activity implements
                 }
             } else {
                 expression.add(s);
-                System.out.println("number");
             }
         }
 
@@ -342,15 +338,6 @@ public class MainActivity extends Activity implements
         BigDecimal j = new BigDecimal(y);
         BigDecimal k = j.subtract(i);
         return k.toString();
-    }
-
-    private boolean isInt(String x) {
-        double d = Double.valueOf(x);
-        return d == (int) d;
-    }
-
-    private boolean isInt(double x) {
-        return x == (int) x;
     }
 
     private boolean higherOrEqualPrecedence(String x, String y) {
