@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.Iterator;
 import java.util.Stack;
@@ -17,6 +18,7 @@ public class MainActivity extends Activity implements
     private static LinkedList<String> expression;
     private boolean pointed;
     private String ans;
+    private int parAvailable;
     private DisplayFragment displayFragment;
 
     @Override
@@ -31,14 +33,14 @@ public class MainActivity extends Activity implements
         displayFragment = (DisplayFragment)
                 getFragmentManager().findFragmentByTag("Display");
         expression = new LinkedList<>();
-        pointed = false;
         ans = "0";
+        initialize();
     }
 
     private void initialize() {
+        parAvailable = 0;
         pointed = false;
         expression.clear();
-        displayFragment.updateDisplay(expression);
     }
 
     public void shiftClick() {
@@ -56,6 +58,9 @@ public class MainActivity extends Activity implements
             String term = expression.getLast();
             if (isOperator(term)) {
                 expression.removeLast();
+                if (term.equals("(")) {
+                    parAvailable--;
+                }
             } else {
                 if (term.length() == 1) {
                     expression.removeLast();
@@ -71,6 +76,7 @@ public class MainActivity extends Activity implements
 
     public void acClick() {
         initialize();
+        displayFragment.updateDisplay(expression);
     }
 
     public void negateClick() {
@@ -92,38 +98,75 @@ public class MainActivity extends Activity implements
         }
     }
 
-    public void termClick(View view) {
-        String term = getTerm(view);
-        if (expression.isEmpty()) { // empty cases
-            if (!isOperator(term)) {
-                expression.add(term);
-                pointed = false;
+    public void bracketClick(View view) {
+        String par = getTermString(view);
+        switch (view.getId()) {
+        case R.id.leftPar:
+            if (expression.isEmpty()) {
+                expression.add(par);
+                parAvailable++;
+            } else {
+                String last = expression.getLast();
+                if (isOperator(last)) {
+                    expression.add(par);
+                    parAvailable++;
+                }
             }
-        } else if (!isOperator(term)) { // nonempty cases, term is a number
-            if (isOperator(expression.getLast())) { // adding a new number term
-                pointed = expression.getLast().equals(".");
-                expression.add(term);
-            } else { // increasing number
-                expression.add(expression.removeLast() + getTerm(view));
+            break;
+        case R.id.rightPar:
+            if (!expression.isEmpty() && !isOperator(expression.getLast())
+                    && parAvailable > 0) {
+                expression.add(par);
+                parAvailable--;
             }
-        } else { // nonempty, term is an operator
-            // can't have two operators in a row
+            break;
+        default:
+            break;
+        }
+        displayFragment.updateDisplay(expression);
+    }
+
+    public void operatorClick(View view) {
+        String operator = getTermString(view);
+        if (!expression.isEmpty()) {
             if (!isOperator(expression.getLast())) {
-                if (term.equals(".")) {
+                if (operator.equals(".")) {
                     if (!pointed) {
-                        expression.add(term);
+                        expression.add(operator);
                         pointed = true;
                     }
                 } else {
-                    expression.add(term);
+                    expression.add(operator);
                     pointed = false;
+                }
+            } else if (expression.getLast().equals(")")) {
+                if (!operator.equals(".")) {
+                    expression.add(operator);
                 }
             }
         }
         displayFragment.updateDisplay(expression);
     }
+
+    public void numberClick(View view) {
+        String number = getTermString(view);
+        if (expression.isEmpty()) {
+            if (expression.isEmpty()) { // empty cases
+                expression.add(number);
+                pointed = false;
+            }
+        } else { // nonempty cases, term is a number
+            if (isOperator(expression.getLast())) { // adding a new number term
+                pointed = expression.getLast().equals(".");
+                expression.add(number);
+            } else { // increasing number
+                expression.add(expression.removeLast() + number);
+            }
+        }
+        displayFragment.updateDisplay(expression);
+    }
     
-    private String getTerm(View view) {
+    private String getTermString(View view) {
         String term;
         switch (view.getId()) {
         case R.id.zero:
@@ -174,6 +217,12 @@ public class MainActivity extends Activity implements
         case R.id.subtract:
             term = "\u2212";
             break;
+        case R.id.leftPar:
+            term = "(";
+            break;
+        case R.id.rightPar:
+            term = ")";
+            break;
         default:
             term = "0";
         }
@@ -190,13 +239,26 @@ public class MainActivity extends Activity implements
         for (int i = 0; i < size; i++) {
             String s = expression.remove();
             if (isOperator(s)) {
-                while (!stack.isEmpty()
-                        && higherOrEqualPrecedence(stack.peek(), s)) {
-                    expression.add(stack.pop());
+                if (s.equals("(")) {
+                    stack.add(s);
+                    System.out.println("left");
+                } else if (s.equals(")")) {
+                    System.out.println("right");
+                    while (!stack.peek().equals("(")) {
+                        expression.add(stack.pop());
+                    }
+                    stack.pop();
+                } else {
+                    System.out.println("else");
+                    while (!stack.isEmpty()
+                            && higherOrEqualPrecedence(stack.peek(), s)) {
+                        expression.add(stack.pop());
+                    }
+                    stack.push(s);
                 }
-                stack.push(s);
             } else {
                 expression.add(s);
+                System.out.println("number");
             }
         }
 
@@ -209,18 +271,22 @@ public class MainActivity extends Activity implements
 
     private void evaluateExpression() {
         Stack<String> stack = new Stack<>();
-        while (!expression.isEmpty()) {
-            String s = expression.remove();
-            if (isOperator(s)) {
-                String top1 = stack.pop();
-                String top2 = stack.pop();
-                stack.push(operate(top1, top2, s));
-            } else {
-                stack.add(s);
+        try {
+            while (!expression.isEmpty()) {
+                String s = expression.remove();
+                if (isOperator(s)) {
+                    String top1 = stack.pop();
+                    String top2 = stack.pop();
+                    stack.push(operate(top1, top2, s));
+                } else {
+                    stack.add(s);
+                }
             }
+            ans = stack.pop();
+            expression.add(ans);
+        } catch (Exception e) {
+            Toast.makeText(this, "Invalid expression", Toast.LENGTH_SHORT).show();
         }
-        ans = stack.pop();
-        expression.add(ans);
     }
 
     private String operate(String x, String y, String o) {
@@ -294,15 +360,15 @@ public class MainActivity extends Activity implements
     private int getPrecedence(String x) {
         switch (x) {
         case ".":
-            return 2;
+            return 3;
         case "\u00D7":
-            return 1;
+            return 2;
         case "\u00F7":
-            return 1;
+            return 2;
         case "+":
-            return 0;
+            return 1;
         case "\u2212":
-            return 0;
+            return 1;
         default:
             return 0;
         }

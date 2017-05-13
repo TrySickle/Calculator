@@ -45,52 +45,52 @@ public class ButtonFragment extends Fragment implements View.OnClickListener {
             mListener.shiftClick();
             break;
         case R.id.zero:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.one:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.two:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.three:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.four:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.five:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.six:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.seven:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.eight:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.nine:
-            mListener.termClick(view);
-            break;
-        case R.id.point:
-            mListener.termClick(view);
+            mListener.numberClick(view);
             break;
         case R.id.ans:
-            mListener.termClick(view);
+            mListener.numberClick(view);
+            break;
+        case R.id.point:
+            mListener.operatorClick(view);
             break;
         case R.id.multiply:
-            mListener.termClick(view);
+            mListener.operatorClick(view);
             break;
         case R.id.divide:
-            mListener.termClick(view);
+            mListener.operatorClick(view);
             break;
         case R.id.add:
-            mListener.termClick(view);
+            mListener.operatorClick(view);
             break;
         case R.id.subtract:
-            mListener.termClick(view);
+            mListener.operatorClick(view);
             break;
         case R.id.equals:
             mListener.equalClick();
@@ -103,6 +103,12 @@ public class ButtonFragment extends Fragment implements View.OnClickListener {
             break;
         case R.id.del:
             mListener.delClick();
+            break;
+        case R.id.leftPar:
+            mListener.bracketClick(view);
+            break;
+        case R.id.rightPar:
+            mListener.bracketClick(view);
             break;
         default:
             break;
