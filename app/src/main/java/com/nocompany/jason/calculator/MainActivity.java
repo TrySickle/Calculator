@@ -16,6 +16,7 @@ public class MainActivity extends Activity implements
         OnFragmentInteractionListener {
 
     private static LinkedList<String> expression;
+    private static LinkedList<String> saveExpression;
     private boolean pointed;
     private String ans;
     private int parAvailable;
@@ -37,12 +38,19 @@ public class MainActivity extends Activity implements
         initialize();
     }
 
+    /**
+     * Initialization, also called when clearing the display
+     */
     private void initialize() {
         parAvailable = 0;
         pointed = false;
         expression.clear();
     }
 
+    /**
+     * Handles the shift button which switches fragments in the display
+     * Alternates between normal button fragment and shift fragment
+     */
     public void shiftClick() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         if (getFragmentManager().findFragmentByTag("Button") != null) {
@@ -53,6 +61,10 @@ public class MainActivity extends Activity implements
         ft.commit();
     }
 
+    /**
+     * Handles the delete button and deletes either an entire operator or one
+     * digit at a time
+     */
     public void delClick() {
         if (!expression.isEmpty()) {
             String term = expression.getLast();
@@ -98,6 +110,20 @@ public class MainActivity extends Activity implements
         }
     }
 
+    public void piClick(View view) {
+        String pi = getTermString(view);
+        if (expression.isEmpty()) {
+            expression.add(pi);
+            pointed = true;
+        } else { // nonempty cases, term is a number
+            if (isOperator(expression.getLast())) { // adding a new number term
+                pointed = true;
+                expression.add(pi);
+            }
+        }
+        displayFragment.updateDisplay(expression);
+    }
+
     public void bracketClick(View view) {
         String par = getTermString(view);
         switch (view.getId()) {
@@ -106,11 +132,8 @@ public class MainActivity extends Activity implements
                 expression.add(par);
                 parAvailable++;
             } else {
-                String last = expression.getLast();
-                if (isOperator(last)) {
-                    expression.add(par);
-                    parAvailable++;
-                }
+                expression.add(par);
+                parAvailable++;
             }
             break;
         case R.id.rightPar:
@@ -143,7 +166,15 @@ public class MainActivity extends Activity implements
                 if (!operator.equals(".")) {
                     expression.add(operator);
                 }
+            } else {
+                if (operator.equals(".")) {
+                    expression.add("0.");
+                    pointed = true;
+                }
             }
+        } else if (operator.equals(".")) {
+            expression.add("0.");
+            pointed = true;
         }
         displayFragment.updateDisplay(expression);
     }
@@ -151,10 +182,8 @@ public class MainActivity extends Activity implements
     public void numberClick(View view) {
         String number = getTermString(view);
         if (expression.isEmpty()) {
-            if (expression.isEmpty()) { // empty cases
-                expression.add(number);
-                pointed = false;
-            }
+            expression.add(number);
+            pointed = false;
         } else { // nonempty cases, term is a number
             if (isOperator(expression.getLast())) { // adding a new number term
                 pointed = expression.getLast().equals(".");
@@ -223,6 +252,9 @@ public class MainActivity extends Activity implements
         case R.id.rightPar:
             term = ")";
             break;
+        case R.id.pi:
+            term = "\u03C0";
+            break;
         default:
             term = "0";
         }
@@ -234,18 +266,31 @@ public class MainActivity extends Activity implements
             System.out.print(s + " ");
         }
         System.out.println();
+        boolean addMultiply = false;
+        saveExpression = (LinkedList<String>) expression.clone();
         Stack<String> stack = new Stack<>();
         int size = expression.size();
+        String last = "";
         for (int i = 0; i < size; i++) {
             String s = expression.remove();
             if (isOperator(s)) {
                 if (s.equals("(")) {
-                    stack.add(s);
+                    if (!last.equals("") && (!isOperator(last) || last.equals(")"))) {
+                        addMultiply = true;
+                    }
+                    stack.push(s);
                 } else if (s.equals(")")) {
                     while (!stack.peek().equals("(")) {
                         expression.add(stack.pop());
                     }
                     stack.pop();
+                    if (addMultiply) {
+                        while (!stack.isEmpty()
+                                && higherOrEqualPrecedence(stack.peek(), "\u00D7")) {
+                            expression.add(stack.pop());
+                        }
+                        expression.add("\u00D7");
+                    }
                 } else {
                     while (!stack.isEmpty()
                             && higherOrEqualPrecedence(stack.peek(), s)) {
@@ -256,6 +301,7 @@ public class MainActivity extends Activity implements
             } else {
                 expression.add(s);
             }
+            last = s;
         }
 
         while (!stack.isEmpty()) {
@@ -271,9 +317,14 @@ public class MainActivity extends Activity implements
             while (!expression.isEmpty()) {
                 String s = expression.remove();
                 if (isOperator(s)) {
-                    String top1 = stack.pop();
-                    String top2 = stack.pop();
-                    stack.push(operate(top1, top2, s));
+                    if (isBinary(s)) {
+                        String top1 = stack.pop();
+                        String top2 = stack.pop();
+                        stack.push(operate(top1, top2, s));
+                    } else {
+                        String top = stack.pop();
+                        stack.push(operate(top, s));
+                    }
                 } else {
                     stack.add(s);
                 }
@@ -281,6 +332,8 @@ public class MainActivity extends Activity implements
             ans = stack.pop();
             expression.add(ans);
         } catch (Exception e) {
+            expression = (LinkedList<String>) saveExpression.clone();
+            displayFragment.updateDisplay(expression);
             Toast.makeText(this, "Invalid expression", Toast.LENGTH_SHORT).show();
         }
     }
@@ -302,10 +355,51 @@ public class MainActivity extends Activity implements
         }
     }
 
+    private String operate(String x, String o) {
+        switch (o) {
+            case "sin":
+                return Double.toString(Math.sin(Double.parseDouble(x)));
+            case "cos":
+                return Double.toString(Math.cos(Double.parseDouble(x)));
+            case "tan":
+                return Double.toString(Math.tan(Double.parseDouble(x)));
+            default:
+                return "0";
+        }
+    }
+
+    private boolean isBinary(String o) {
+        switch (o) {
+            case "\u00D7":
+            case "\u00F7":
+            case "+":
+            case "\u2212":
+            case ".":
+            case "\u207F":
+            case "\u00B2":
+                return true;
+            case "log":
+            case "ln":
+            case "\u221A":
+            case "sin":
+            case "cos":
+            case "tan":
+            case "sin\u207B\u00B9":
+            case "cos\u207B\u00B9":
+            case "tan\u207B\u00B9":
+            case "\u221B":
+            case "\u0021":
+                return false;
+            default:
+                return false;
+        }
+    }
+
     private String multiply(String x, String y) {
         BigDecimal i = new BigDecimal(x);
         BigDecimal j = new BigDecimal(y);
         BigDecimal k = i.multiply(j);
+        k = k.stripTrailingZeros();
         return k.toString();
     }
 
@@ -313,6 +407,7 @@ public class MainActivity extends Activity implements
         BigDecimal i = new BigDecimal(x);
         BigDecimal j = new BigDecimal(y);
         BigDecimal k = j.divide(i, java.math.MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
         return k.toString();
     }
 
@@ -320,6 +415,7 @@ public class MainActivity extends Activity implements
         BigDecimal i = new BigDecimal(x);
         BigDecimal j = new BigDecimal(y);
         BigDecimal k = i.add(j);
+        k = k.stripTrailingZeros();
         return k.toString();
     }
 
@@ -330,6 +426,7 @@ public class MainActivity extends Activity implements
             j = j.negate();
         }
         BigDecimal k = i.add(j);
+        k = k.stripTrailingZeros();
         return k.toString();
     }
 
@@ -337,6 +434,7 @@ public class MainActivity extends Activity implements
         BigDecimal i = new BigDecimal(x);
         BigDecimal j = new BigDecimal(y);
         BigDecimal k = j.subtract(i);
+        k = k.stripTrailingZeros();
         return k.toString();
     }
 

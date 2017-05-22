@@ -53,6 +53,18 @@ public class ShiftFragment extends Fragment implements View.OnClickListener {
         case R.id.shift:
             mListener.shiftClick();
             break;
+        case R.id.del:
+            mListener.delClick();
+            break;
+        case R.id.allClear:
+            mListener.acClick();
+            break;
+        case R.id.leftPar:
+            mListener.bracketClick(view);
+            break;
+        case R.id.rightPar:
+            mListener.bracketClick(view);
+            break;
         default:
             break;
         }
