@@ -92,22 +92,31 @@ public class MainActivity extends Activity implements
     }
 
     public void negateClick() {
-        if (!expression.isEmpty() && !isOperator(expression.getLast())) {
-            if (pointed) {
-                Iterator<String> reverseIter = expression.descendingIterator();
-                reverseIter.next();
-                reverseIter.next();
-                String beforeDecimal = reverseIter.next();
-                BigDecimal before = new BigDecimal(beforeDecimal);
-                BigDecimal negated = before.negate();
-                expression.set(expression.size() - 3, negated.toString());
+        if (!expression.isEmpty()) {
+            if (!isOperator(expression.getLast())) {
+                if (pointed) {
+                    Iterator<String> reverseIter = expression.descendingIterator();
+                    reverseIter.next();
+                    reverseIter.next();
+                    String beforeDecimal = reverseIter.next();
+                    BigDecimal before = new BigDecimal(beforeDecimal);
+                    BigDecimal negated = before.negate();
+                    expression.set(expression.size() - 3, negated.toString());
+                } else {
+                    BigDecimal last = new BigDecimal(expression.getLast());
+                    BigDecimal negated = last.negate();
+                    expression.set(expression.size() - 1, negated.toString());
+                }
+
             } else {
-                BigDecimal last = new BigDecimal(expression.getLast());
-                BigDecimal negated = last.negate();
-                expression.set(expression.size() - 1, negated.toString());
+                if (!expression.getLast().equals("-")) {
+                    expression.add("-");
+                }
             }
-            displayFragment.updateDisplay(expression);
+        } else {
+            expression.add("-");
         }
+        displayFragment.updateDisplay(expression);
     }
 
     public void piClick(View view) {
@@ -186,8 +195,12 @@ public class MainActivity extends Activity implements
             pointed = false;
         } else { // nonempty cases, term is a number
             if (isOperator(expression.getLast())) { // adding a new number term
-                pointed = expression.getLast().equals(".");
-                expression.add(number);
+                if (expression.getLast().equals("-")) {
+                    expression.add(expression.removeLast() + number);
+                } else {
+                    pointed = expression.getLast().equals(".");
+                    expression.add(number);
+                }
             } else { // increasing number
                 expression.add(expression.removeLast() + number);
             }
@@ -363,6 +376,8 @@ public class MainActivity extends Activity implements
                 return Double.toString(Math.cos(Double.parseDouble(x)));
             case "tan":
                 return Double.toString(Math.tan(Double.parseDouble(x)));
+            case "-":
+                return negate(x);
             default:
                 return "0";
         }
@@ -378,6 +393,7 @@ public class MainActivity extends Activity implements
             case "\u207F":
             case "\u00B2":
                 return true;
+            case "-":
             case "log":
             case "ln":
             case "\u221A":
@@ -393,6 +409,13 @@ public class MainActivity extends Activity implements
             default:
                 return false;
         }
+    }
+
+    private String negate(String x) {
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal k = i.negate();
+        k = k.stripTrailingZeros();
+        return k.toString();
     }
 
     private String multiply(String x, String y) {
@@ -444,6 +467,8 @@ public class MainActivity extends Activity implements
 
     private int getPrecedence(String x) {
         switch (x) {
+        case "-":
+            return 3;
         case ".":
             return 3;
         case "\u00D7":
@@ -462,18 +487,13 @@ public class MainActivity extends Activity implements
     private boolean isOperator(String s) {
         switch (s) {
         case "\u00D7":
-            return true;
         case "\u00F7":
-            return true;
         case "+":
-            return true;
         case "\u2212":
-            return true;
         case ".":
-            return true;
         case "(":
-            return true;
         case ")":
+        case "-":
             return true;
         default:
             return false;
