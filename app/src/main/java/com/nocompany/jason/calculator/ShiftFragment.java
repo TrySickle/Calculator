@@ -65,6 +65,18 @@ public class ShiftFragment extends Fragment implements View.OnClickListener {
         case R.id.rightPar:
             mListener.bracketClick(view);
             break;
+        case R.id.ln:
+        case R.id.log:
+        case R.id.sin:
+        case R.id.cos:
+        case R.id.tan:
+        case R.id.square_root:
+        case R.id.arcsin:
+        case R.id.arccos:
+        case R.id.arctan:
+        case R.id.cube_root:
+            mListener.operatorClick(view);
+            break;
         default:
             break;
         }

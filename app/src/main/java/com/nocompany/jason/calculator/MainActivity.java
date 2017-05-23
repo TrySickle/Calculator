@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import java.math.MathContext;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.LinkedList;
@@ -16,7 +17,6 @@ public class MainActivity extends Activity implements
         OnFragmentInteractionListener {
 
     private static LinkedList<String> expression;
-    private static LinkedList<String> saveExpression;
     private boolean pointed;
     private String ans;
     private int parAvailable;
@@ -39,7 +39,7 @@ public class MainActivity extends Activity implements
     }
 
     /**
-     * Initialization, also called when clearing the display
+     * Initialization, also called when clearing the display.
      */
     private void initialize() {
         parAvailable = 0;
@@ -49,8 +49,9 @@ public class MainActivity extends Activity implements
 
     /**
      * Handles the shift button which switches fragments in the display
-     * Alternates between normal button fragment and shift fragment
+     * Alternates between normal button fragment and shift fragment.
      */
+    @Override
     public void shiftClick() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         if (getFragmentManager().findFragmentByTag("Button") != null) {
@@ -63,8 +64,9 @@ public class MainActivity extends Activity implements
 
     /**
      * Handles the delete button and deletes either an entire operator or one
-     * digit at a time
+     * digit at a time.
      */
+    @Override
     public void delClick() {
         if (!expression.isEmpty()) {
             String term = expression.getLast();
@@ -72,6 +74,8 @@ public class MainActivity extends Activity implements
                 expression.removeLast();
                 if (term.equals("(")) {
                     parAvailable--;
+                } else if (term.equals(")")) {
+                    parAvailable++;
                 }
             } else {
                 if (term.length() == 1) {
@@ -86,11 +90,21 @@ public class MainActivity extends Activity implements
         }
     }
 
+    /**
+     * Handles the AC button and initializes again, resetting display.
+     */
+    @Override
     public void acClick() {
         initialize();
         displayFragment.updateDisplay(expression);
     }
 
+    /**
+     * Handles the negate button which when used after an operator or in an
+     * empty expression acts as a unary negative sign. When used on a number,
+     * the number is negated.
+     */
+    @Override
     public void negateClick() {
         if (!expression.isEmpty()) {
             if (!isOperator(expression.getLast())) {
@@ -119,6 +133,10 @@ public class MainActivity extends Activity implements
         displayFragment.updateDisplay(expression);
     }
 
+    /**
+     * Handles the pi button, but not finished yet
+     * @param view View containing the pi button
+     */
     public void piClick(View view) {
         String pi = getTermString(view);
         if (expression.isEmpty()) {
@@ -133,6 +151,12 @@ public class MainActivity extends Activity implements
         displayFragment.updateDisplay(expression);
     }
 
+    /**
+     * Handles the parentheses and limits their usage, only allowing an equal
+     * number of right and left parentheses
+     * @param view View containing bracket
+     */
+    @Override
     public void bracketClick(View view) {
         String par = getTermString(view);
         switch (view.getId()) {
@@ -146,7 +170,8 @@ public class MainActivity extends Activity implements
             }
             break;
         case R.id.rightPar:
-            if (!expression.isEmpty() && !isOperator(expression.getLast())
+            if (!expression.isEmpty() && (expression.getLast().equals(")") ||
+                    !isOperator(expression.getLast()))
                     && parAvailable > 0) {
                 expression.add(par);
                 parAvailable--;
@@ -158,6 +183,11 @@ public class MainActivity extends Activity implements
         displayFragment.updateDisplay(expression);
     }
 
+    /**
+     * Handles the operators, sets rules for their placement
+     * @param view View containing the operator
+     */
+    @Override
     public void operatorClick(View view) {
         String operator = getTermString(view);
         if (!expression.isEmpty()) {
@@ -169,21 +199,42 @@ public class MainActivity extends Activity implements
                     }
                 } else {
                     expression.add(operator);
+                    if (isPrefixOperator(operator)) {
+                        expression.add("(");
+                        parAvailable++;
+                    }
                     pointed = false;
                 }
             } else if (expression.getLast().equals(")")) {
                 if (!operator.equals(".")) {
                     expression.add(operator);
+                    pointed = false;
+                    if (isPrefixOperator(operator)) {
+                        expression.add("(");
+                        parAvailable++;
+                    }
                 }
-            } else {
+            } else { // last is an operator
                 if (operator.equals(".")) {
                     expression.add("0.");
                     pointed = true;
+                } else if (isPrefixOperator(operator)) {
+                    expression.add(operator);
+                    expression.add("(");
+                    parAvailable++;
+                    pointed = false;
                 }
             }
-        } else if (operator.equals(".")) {
-            expression.add("0.");
-            pointed = true;
+        } else {
+            if (operator.equals(".")) {
+                expression.add("0.");
+                pointed = true;
+            } else if (isPrefixOperator(operator)) {
+                expression.add(operator);
+                expression.add("(");
+                parAvailable++;
+                pointed = false;
+            }
         }
         displayFragment.updateDisplay(expression);
     }
@@ -268,10 +319,55 @@ public class MainActivity extends Activity implements
         case R.id.pi:
             term = "\u03C0";
             break;
+        case R.id.ln:
+            term = "ln";
+            break;
+        case R.id.log:
+            term = "log";
+            break;
+        case R.id.sin:
+            term = "sin";
+            break;
+        case R.id.cos:
+            term = "cos";
+            break;
+        case R.id.tan:
+            term = "tan";
+            break;
+        case R.id.square_root:
+            term = "\u221A";
+            break;
+        case R.id.arcsin:
+            term = "sin\u207B\u00B9";
+            break;
+        case R.id.arccos:
+            term = "cos\u207B\u00B9";
+            break;
+        case R.id.arctan:
+            term = "tan\u207B\u00B9";
+            break;
+        case R.id.cube_root:
+            term = "\u221B";
+            break;
         default:
             term = "0";
         }
         return term;
+    }
+
+    private LinkedList<String> expand(LinkedList<String> exp) {
+        LinkedList<String> expanded = new LinkedList<>();
+        String last = "";
+        for (String s : expression) {
+            if (isPrefixOperator(s)) {
+                if (!last.equals("") && (!isOperator(last) || last.equals(")"))) {
+                    expanded.add("\u00D7");
+                }
+            }
+            expanded.add(s);
+            last = s;
+        }
+        return expanded;
     }
 
     public void equalClick() {
@@ -279,76 +375,66 @@ public class MainActivity extends Activity implements
             System.out.print(s + " ");
         }
         System.out.println();
-        boolean addMultiply = false;
-        saveExpression = (LinkedList<String>) expression.clone();
         Stack<String> stack = new Stack<>();
-        int size = expression.size();
-        String last = "";
+        LinkedList<String> expanded = expand(expression);
+        int size = expanded.size();
         for (int i = 0; i < size; i++) {
-            String s = expression.remove();
+            String s = expanded.remove();
             if (isOperator(s)) {
                 if (s.equals("(")) {
-                    if (!last.equals("") && (!isOperator(last) || last.equals(")"))) {
-                        addMultiply = true;
-                    }
                     stack.push(s);
                 } else if (s.equals(")")) {
                     while (!stack.peek().equals("(")) {
-                        expression.add(stack.pop());
+                        expanded.add(stack.pop());
                     }
                     stack.pop();
-                    if (addMultiply) {
-                        while (!stack.isEmpty()
-                                && higherOrEqualPrecedence(stack.peek(), "\u00D7")) {
-                            expression.add(stack.pop());
-                        }
-                        expression.add("\u00D7");
-                    }
                 } else {
                     while (!stack.isEmpty()
                             && higherOrEqualPrecedence(stack.peek(), s)) {
-                        expression.add(stack.pop());
+                        expanded.add(stack.pop());
                     }
                     stack.push(s);
                 }
             } else {
-                expression.add(s);
+                expanded.add(s);
             }
-            last = s;
         }
 
         while (!stack.isEmpty()) {
-            expression.add(stack.pop());
+            expanded.add(stack.pop());
         }
-        evaluateExpression();
-        displayFragment.updateDisplay(expression);
-    }
-
-    private void evaluateExpression() {
-        Stack<String> stack = new Stack<>();
         try {
-            while (!expression.isEmpty()) {
-                String s = expression.remove();
-                if (isOperator(s)) {
-                    if (isBinary(s)) {
-                        String top1 = stack.pop();
-                        String top2 = stack.pop();
-                        stack.push(operate(top1, top2, s));
-                    } else {
-                        String top = stack.pop();
-                        stack.push(operate(top, s));
-                    }
-                } else {
-                    stack.add(s);
-                }
-            }
-            ans = stack.pop();
+            ans = evaluateExpression(expanded);
+            expression.clear();
             expression.add(ans);
-        } catch (Exception e) {
-            expression = (LinkedList<String>) saveExpression.clone();
             displayFragment.updateDisplay(expression);
+        } catch (Exception e) {
             Toast.makeText(this, "Invalid expression", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private String evaluateExpression(LinkedList<String> exp) {
+        for (String s : exp) {
+            System.out.print(s + " ");
+        }
+        System.out.println();
+        Stack<String> stack = new Stack<>();
+        while (!exp.isEmpty()) {
+            String s = exp.remove();
+            if (isOperator(s)) {
+                if (isBinary(s)) {
+                    String top1 = stack.pop();
+                    String top2 = stack.pop();
+                    stack.push(operate(top1, top2, s));
+                } else {
+                    String top = stack.pop();
+                    stack.push(operate(top, s));
+                }
+            } else {
+                stack.add(s);
+            }
+        }
+        return stack.pop();
     }
 
     private String operate(String x, String y, String o) {
@@ -371,13 +457,27 @@ public class MainActivity extends Activity implements
     private String operate(String x, String o) {
         switch (o) {
             case "sin":
-                return Double.toString(Math.sin(Double.parseDouble(x)));
+                return sin(x);
             case "cos":
-                return Double.toString(Math.cos(Double.parseDouble(x)));
+                return cos(x);
             case "tan":
-                return Double.toString(Math.tan(Double.parseDouble(x)));
+                return tan(x);
+            case "arcsin":
+                return arcsin(x);
+            case "arccos":
+                return arccos(x);
+            case "arctan":
+                return arctan(x);
+            case "\u221A":
+                return squareRoot(x);
+            case "\u221B":
+                return cubeRoot(x);
             case "-":
                 return negate(x);
+            case "ln":
+                return ln(x);
+            case "log":
+                return log(x);
             default:
                 return "0";
         }
@@ -411,6 +511,76 @@ public class MainActivity extends Activity implements
         }
     }
 
+    private String sin(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.sin(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
+    private String cos(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.cos(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
+    private String tan(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.tan(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
+    private String arcsin(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.asin(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
+    private String arccos(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.acos(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
+    private String arctan(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.atan(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
+    private String squareRoot(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.sqrt(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
+    private String cubeRoot(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.cbrt(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
+    private String log(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.log10(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
+    private String ln(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.log(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toString();
+    }
+
     private String negate(String x) {
         BigDecimal i = new BigDecimal(x);
         BigDecimal k = i.negate();
@@ -429,7 +599,7 @@ public class MainActivity extends Activity implements
     private String divide(String x, String y) {
         BigDecimal i = new BigDecimal(x);
         BigDecimal j = new BigDecimal(y);
-        BigDecimal k = j.divide(i, java.math.MathContext.DECIMAL64);
+        BigDecimal k = j.divide(i, MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toString();
     }
@@ -467,20 +637,47 @@ public class MainActivity extends Activity implements
 
     private int getPrecedence(String x) {
         switch (x) {
+        case ".":
+        case "log":
+        case "ln":
+        case "\u221A":
+        case "sin":
+        case "cos":
+        case "tan":
+        case "sin\u207B\u00B9":
+        case "cos\u207B\u00B9":
+        case "tan\u207B\u00B9":
+        case "\u221B":
+            return 4;
         case "-":
             return 3;
-        case ".":
-            return 3;
         case "\u00D7":
-            return 2;
         case "\u00F7":
             return 2;
         case "+":
-            return 1;
         case "\u2212":
             return 1;
         default:
             return 0;
+        }
+    }
+
+    private boolean isPrefixOperator(String s) {
+        switch (s) {
+        case "(":
+        case "log":
+        case "ln":
+        case "\u221A":
+        case "sin":
+        case "cos":
+        case "tan":
+        case "sin\u207B\u00B9":
+        case "cos\u207B\u00B9":
+        case "tan\u207B\u00B9":
+        case "\u221B":
+            return true;
+        default:
+            return false;
         }
     }
 
@@ -494,6 +691,16 @@ public class MainActivity extends Activity implements
         case "(":
         case ")":
         case "-":
+        case "log":
+        case "ln":
+        case "\u221A":
+        case "sin":
+        case "cos":
+        case "tan":
+        case "sin\u207B\u00B9":
+        case "cos\u207B\u00B9":
+        case "tan\u207B\u00B9":
+        case "\u221B":
             return true;
         default:
             return false;
