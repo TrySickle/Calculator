@@ -1,8 +1,8 @@
 package com.nocompany.jason.calculator;
 
-import android.app.Activity;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -13,7 +13,7 @@ import java.util.LinkedList;
 
 import java.math.BigDecimal;
 
-public class MainActivity extends Activity implements
+public class MainActivity extends AppCompatActivity implements
         OnFragmentInteractionListener {
 
     private static LinkedList<String> expression;
@@ -26,13 +26,14 @@ public class MainActivity extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.display_container, new DisplayFragment(), "Display");
         ft.add(R.id.button_container, new ButtonFragment(), "Button");
         ft.commit();
-        getFragmentManager().executePendingTransactions();
+        getSupportFragmentManager().executePendingTransactions();
         displayFragment = (DisplayFragment)
-                getFragmentManager().findFragmentByTag("Display");
+                getSupportFragmentManager().findFragmentByTag("Display");
+        System.out.println(displayFragment == null);
         expression = new LinkedList<>();
         ans = "0";
         initialize();
@@ -53,8 +54,8 @@ public class MainActivity extends Activity implements
      */
     @Override
     public void shiftClick() {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        if (getFragmentManager().findFragmentByTag("Button") != null) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (getSupportFragmentManager().findFragmentByTag("Button") != null) {
             ft.replace(R.id.button_container, new ShiftFragment());
         } else {
             ft.replace(R.id.button_container, new ButtonFragment(), "Button");

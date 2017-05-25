@@ -1,9 +1,8 @@
 package com.nocompany.jason.calculator;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +32,7 @@ public class DisplayFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_display, container, false);
         display = (TextView) view.findViewById(R.id.display);
-        System.out.println(display == null);
+        //System.out.println(display == null);
         scroll = (HorizontalScrollView) view.findViewById(R.id.scroll);
         scroll.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
