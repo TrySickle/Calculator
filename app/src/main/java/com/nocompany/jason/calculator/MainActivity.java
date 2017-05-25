@@ -4,6 +4,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.Toast;
 
 import java.math.MathContext;
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements
     private String ans;
     private int parAvailable;
     private DisplayFragment displayFragment;
+    private boolean rad;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +35,9 @@ public class MainActivity extends AppCompatActivity implements
         getSupportFragmentManager().executePendingTransactions();
         displayFragment = (DisplayFragment)
                 getSupportFragmentManager().findFragmentByTag("Display");
-        System.out.println(displayFragment == null);
         expression = new LinkedList<>();
         ans = "0";
+        rad = true;
         initialize();
     }
 
@@ -46,6 +48,18 @@ public class MainActivity extends AppCompatActivity implements
         parAvailable = 0;
         pointed = false;
         expression.clear();
+    }
+
+    private void scroll() {
+        displayFragment.getScroll().post(new Runnable() {
+            public void run() {
+                displayFragment.getScroll().fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+            }
+        });
+    }
+
+    public void radClick() {
+        rad = !rad;
     }
 
     /**
@@ -132,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements
             expression.add("-");
         }
         displayFragment.updateDisplay(expression);
+        scroll();
     }
 
     /**
@@ -182,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements
             break;
         }
         displayFragment.updateDisplay(expression);
+        scroll();
     }
 
     /**
@@ -238,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
         displayFragment.updateDisplay(expression);
+        scroll();
     }
 
     public void numberClick(View view) {
@@ -258,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
         displayFragment.updateDisplay(expression);
+        scroll();
     }
     
     private String getTermString(View view) {
@@ -514,6 +532,10 @@ public class MainActivity extends AppCompatActivity implements
 
     private String sin(String x) {
         Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+            System.out.println("hi" + d);
+        }
         BigDecimal k = new BigDecimal(Math.sin(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toString();
@@ -521,6 +543,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private String cos(String x) {
         Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
         BigDecimal k = new BigDecimal(Math.cos(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toString();
@@ -528,6 +553,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private String tan(String x) {
         Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
         BigDecimal k = new BigDecimal(Math.tan(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toString();
@@ -535,6 +563,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private String arcsin(String x) {
         Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
         BigDecimal k = new BigDecimal(Math.asin(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toString();
@@ -542,6 +573,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private String arccos(String x) {
         Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
         BigDecimal k = new BigDecimal(Math.acos(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toString();
@@ -549,6 +583,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private String arctan(String x) {
         Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
         BigDecimal k = new BigDecimal(Math.atan(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toString();

@@ -41,4 +41,5 @@
     <string name="pi">\u03C0</string>
     <string name="permutation">nPr</string>
     <string name="combination">nCr</string>
+    <string name="rad">RAD</string>
 </resources>

@@ -11,4 +11,5 @@ public interface OnFragmentInteractionListener {
     void operatorClick(View view);
     void equalClick();
     void bracketClick(View view);
+    void radClick();
 }
