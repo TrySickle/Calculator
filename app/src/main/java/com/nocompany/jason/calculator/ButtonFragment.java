@@ -83,7 +83,7 @@ public class ButtonFragment extends Fragment implements View.OnClickListener {
             mListener.numberClick(view);
             break;
         case R.id.point:
-            mListener.operatorClick(view);
+            mListener.pointClick();
             break;
         case R.id.multiply:
             mListener.operatorClick(view);

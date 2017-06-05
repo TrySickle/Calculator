@@ -6,6 +6,7 @@ public interface OnFragmentInteractionListener {
     void shiftClick();
     void delClick();
     void acClick();
+    void pointClick();
     void negateClick();
     void numberClick(View view);
     void operatorClick(View view);

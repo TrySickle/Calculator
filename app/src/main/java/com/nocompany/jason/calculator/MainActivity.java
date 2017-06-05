@@ -18,7 +18,6 @@ public class MainActivity extends AppCompatActivity implements
         OnFragmentInteractionListener {
 
     private static LinkedList<String> expression;
-    private boolean pointed;
     private String ans;
     private int parAvailable;
     private DisplayFragment displayFragment;
@@ -46,14 +45,21 @@ public class MainActivity extends AppCompatActivity implements
      */
     private void initialize() {
         parAvailable = 0;
-        pointed = false;
         expression.clear();
     }
 
-    private void scroll() {
+    private void scrollRight() {
         displayFragment.getScroll().post(new Runnable() {
             public void run() {
                 displayFragment.getScroll().fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+            }
+        });
+    }
+
+    private void scrollLeft() {
+        displayFragment.getScroll().post(new Runnable() {
+            public void run() {
+                displayFragment.getScroll().fullScroll(HorizontalScrollView.FOCUS_LEFT);
             }
         });
     }
@@ -122,21 +128,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void negateClick() {
         if (!expression.isEmpty()) {
-            if (!isOperator(expression.getLast())) {
-                if (pointed) {
-                    Iterator<String> reverseIter = expression.descendingIterator();
-                    reverseIter.next();
-                    reverseIter.next();
-                    String beforeDecimal = reverseIter.next();
-                    BigDecimal before = new BigDecimal(beforeDecimal);
-                    BigDecimal negated = before.negate();
-                    expression.set(expression.size() - 3, negated.toString());
-                } else {
-                    BigDecimal last = new BigDecimal(expression.getLast());
-                    BigDecimal negated = last.negate();
-                    expression.set(expression.size() - 1, negated.toString());
-                }
-
+            String last = expression.removeLast();
+            if (!isOperator(last)) {
+                expression.add("-" + last);
             } else {
                 if (!expression.getLast().equals("-")) {
                     expression.add("-");
@@ -146,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements
             expression.add("-");
         }
         displayFragment.updateDisplay(expression);
-        scroll();
+        scrollRight();
     }
 
     /**
@@ -157,10 +151,8 @@ public class MainActivity extends AppCompatActivity implements
         String pi = getTermString(view);
         if (expression.isEmpty()) {
             expression.add(pi);
-            pointed = true;
         } else { // nonempty cases, term is a number
             if (isOperator(expression.getLast())) { // adding a new number term
-                pointed = true;
                 expression.add(pi);
             }
         }
@@ -197,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements
             break;
         }
         displayFragment.updateDisplay(expression);
-        scroll();
+        scrollRight();
     }
 
     /**
@@ -209,65 +201,71 @@ public class MainActivity extends AppCompatActivity implements
         String operator = getTermString(view);
         if (!expression.isEmpty()) {
             if (!isOperator(expression.getLast())) {
-                if (operator.equals(".")) {
-                    if (!pointed) {
-                        expression.add(operator);
-                        pointed = true;
-                    }
-                } else {
-                    expression.add(operator);
-                    if (isPrefixOperator(operator)) {
-                        expression.add("(");
-                        parAvailable++;
-                    }
-                    pointed = false;
+                expression.add(operator);
+                if (view.getId() == R.id.squared) {
+                    expression.add("2");
+                }
+                if (isPrefixOperator(operator)) {
+                    expression.add("(");
+                    parAvailable++;
                 }
             } else if (expression.getLast().equals(")")) {
-                if (!operator.equals(".")) {
-                    expression.add(operator);
-                    pointed = false;
-                    if (isPrefixOperator(operator)) {
-                        expression.add("(");
-                        parAvailable++;
-                    }
+                expression.add(operator);
+                if (view.getId() == R.id.squared) {
+                    expression.add("2");
+                }
+                if (isPrefixOperator(operator)) {
+                    expression.add("(");
+                    parAvailable++;
                 }
             } else { // last is an operator
-                if (operator.equals(".")) {
-                    expression.add("0.");
-                    pointed = true;
-                } else if (isPrefixOperator(operator)) {
+                if (isPrefixOperator(operator)) {
                     expression.add(operator);
                     expression.add("(");
                     parAvailable++;
-                    pointed = false;
                 }
             }
         } else {
-            if (operator.equals(".")) {
-                expression.add("0.");
-                pointed = true;
-            } else if (isPrefixOperator(operator)) {
+            if (isPrefixOperator(operator)) {
                 expression.add(operator);
                 expression.add("(");
                 parAvailable++;
-                pointed = false;
             }
         }
         displayFragment.updateDisplay(expression);
-        scroll();
+        scrollRight();
+    }
+
+    public void pointClick() {
+        if (expression.isEmpty()) {
+            expression.add("0.");
+        } else {
+            if (isOperator(expression.getLast())) { // adding a new number term
+                if (expression.getLast().equals("-")) {
+                    expression.add(expression.removeLast() + "0.");
+                } else {
+                    expression.add("0.");
+                }
+            } else { // increasing number
+                String last = expression.removeLast();
+                if (!last.contains(".")) {
+                    expression.add(last + ".");
+                }
+            }
+        }
+        displayFragment.updateDisplay(expression);
+        scrollRight();
     }
 
     public void numberClick(View view) {
         String number = getTermString(view);
         if (expression.isEmpty()) {
             expression.add(number);
-            pointed = false;
         } else { // nonempty cases, term is a number
             if (isOperator(expression.getLast())) { // adding a new number term
                 if (expression.getLast().equals("-")) {
                     expression.add(expression.removeLast() + number);
                 } else {
-                    pointed = expression.getLast().equals(".");
                     expression.add(number);
                 }
             } else { // increasing number
@@ -275,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
         displayFragment.updateDisplay(expression);
-        scroll();
+        scrollRight();
     }
     
     private String getTermString(View view) {
@@ -353,6 +351,10 @@ public class MainActivity extends AppCompatActivity implements
         case R.id.tan:
             term = "tan";
             break;
+        case R.id.squared:
+        case R.id.exponent:
+            term = "^";
+            break;
         case R.id.square_root:
             term = "\u221A";
             break;
@@ -427,6 +429,7 @@ public class MainActivity extends AppCompatActivity implements
             expression.clear();
             expression.add(ans);
             displayFragment.updateDisplay(expression);
+            scrollLeft();
         } catch (Exception e) {
             Toast.makeText(this, "Invalid expression", Toast.LENGTH_SHORT).show();
         }
@@ -466,8 +469,8 @@ public class MainActivity extends AppCompatActivity implements
             return add(x, y);
         case "\u2212":
             return subtract(x, y);
-        case ".":
-            return point(x, y);
+        case "^":
+            return exponent(x, y);
         default:
             return "0";
         }
@@ -502,15 +505,182 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    private String sin(String x) {
+        Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+            System.out.println("hi" + d);
+        }
+        BigDecimal k = new BigDecimal(Math.sin(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String cos(String x) {
+        Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
+        BigDecimal k = new BigDecimal(Math.cos(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String tan(String x) {
+        Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
+        BigDecimal k = new BigDecimal(Math.tan(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String arcsin(String x) {
+        Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
+        BigDecimal k = new BigDecimal(Math.asin(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String arccos(String x) {
+        Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
+        BigDecimal k = new BigDecimal(Math.acos(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String arctan(String x) {
+        Double d = Double.parseDouble(x);
+        if (!rad) {
+            d = Math.toRadians(d);
+        }
+        BigDecimal k = new BigDecimal(Math.atan(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String squareRoot(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.sqrt(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String cubeRoot(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.cbrt(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String log(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.log10(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String ln(String x) {
+        Double d = Double.parseDouble(x);
+        BigDecimal k = new BigDecimal(Math.log(d), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String negate(String x) {
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal k = i.negate();
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String multiply(String x, String y) {
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal j = new BigDecimal(y);
+        BigDecimal k = i.multiply(j);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String divide(String x, String y) {
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal j = new BigDecimal(y);
+        BigDecimal k = j.divide(i, MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String add(String x, String y) {
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal j = new BigDecimal(y);
+        BigDecimal k = i.add(j);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String exponent(String x, String y) {
+        double i = Double.valueOf(x);
+        double j = Double.valueOf(y);
+        BigDecimal k = new BigDecimal(Math.pow(j, i), MathContext.DECIMAL64);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private String subtract(String x, String y) {
+        BigDecimal i = new BigDecimal(x);
+        BigDecimal j = new BigDecimal(y);
+        BigDecimal k = j.subtract(i);
+        k = k.stripTrailingZeros();
+        return k.toPlainString();
+    }
+
+    private boolean higherOrEqualPrecedence(String x, String y) {
+        return getPrecedence(x) - getPrecedence(y) >= 0;
+    }
+
+    private int getPrecedence(String x) {
+        switch (x) {
+        case "log":
+        case "ln":
+        case "\u221A":
+        case "sin":
+        case "cos":
+        case "tan":
+        case "sin\u207B\u00B9":
+        case "cos\u207B\u00B9":
+        case "tan\u207B\u00B9":
+        case "\u221B":
+        case "^":
+            return 4;
+        case "-":
+            return 3;
+        case "\u00D7":
+        case "\u00F7":
+            return 2;
+        case "+":
+        case "\u2212":
+            return 1;
+        default:
+            return 0;
+        }
+    }
+
     private boolean isBinary(String o) {
         switch (o) {
             case "\u00D7":
             case "\u00F7":
             case "+":
             case "\u2212":
-            case ".":
             case "\u207F":
             case "\u00B2":
+            case "^":
                 return true;
             case "-":
             case "log":
@@ -527,176 +697,6 @@ public class MainActivity extends AppCompatActivity implements
                 return false;
             default:
                 return false;
-        }
-    }
-
-    private String sin(String x) {
-        Double d = Double.parseDouble(x);
-        if (!rad) {
-            d = Math.toRadians(d);
-            System.out.println("hi" + d);
-        }
-        BigDecimal k = new BigDecimal(Math.sin(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String cos(String x) {
-        Double d = Double.parseDouble(x);
-        if (!rad) {
-            d = Math.toRadians(d);
-        }
-        BigDecimal k = new BigDecimal(Math.cos(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String tan(String x) {
-        Double d = Double.parseDouble(x);
-        if (!rad) {
-            d = Math.toRadians(d);
-        }
-        BigDecimal k = new BigDecimal(Math.tan(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String arcsin(String x) {
-        Double d = Double.parseDouble(x);
-        if (!rad) {
-            d = Math.toRadians(d);
-        }
-        BigDecimal k = new BigDecimal(Math.asin(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String arccos(String x) {
-        Double d = Double.parseDouble(x);
-        if (!rad) {
-            d = Math.toRadians(d);
-        }
-        BigDecimal k = new BigDecimal(Math.acos(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String arctan(String x) {
-        Double d = Double.parseDouble(x);
-        if (!rad) {
-            d = Math.toRadians(d);
-        }
-        BigDecimal k = new BigDecimal(Math.atan(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String squareRoot(String x) {
-        Double d = Double.parseDouble(x);
-        BigDecimal k = new BigDecimal(Math.sqrt(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String cubeRoot(String x) {
-        Double d = Double.parseDouble(x);
-        BigDecimal k = new BigDecimal(Math.cbrt(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String log(String x) {
-        Double d = Double.parseDouble(x);
-        BigDecimal k = new BigDecimal(Math.log10(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String ln(String x) {
-        Double d = Double.parseDouble(x);
-        BigDecimal k = new BigDecimal(Math.log(d), MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String negate(String x) {
-        BigDecimal i = new BigDecimal(x);
-        BigDecimal k = i.negate();
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String multiply(String x, String y) {
-        BigDecimal i = new BigDecimal(x);
-        BigDecimal j = new BigDecimal(y);
-        BigDecimal k = i.multiply(j);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String divide(String x, String y) {
-        BigDecimal i = new BigDecimal(x);
-        BigDecimal j = new BigDecimal(y);
-        BigDecimal k = j.divide(i, MathContext.DECIMAL64);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String add(String x, String y) {
-        BigDecimal i = new BigDecimal(x);
-        BigDecimal j = new BigDecimal(y);
-        BigDecimal k = i.add(j);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String point(String x, String y) {
-        BigDecimal i = new BigDecimal(y);
-        BigDecimal j = new BigDecimal("0." + x);
-        if (i.compareTo(BigDecimal.ZERO) < 0) {
-            j = j.negate();
-        }
-        BigDecimal k = i.add(j);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private String subtract(String x, String y) {
-        BigDecimal i = new BigDecimal(x);
-        BigDecimal j = new BigDecimal(y);
-        BigDecimal k = j.subtract(i);
-        k = k.stripTrailingZeros();
-        return k.toString();
-    }
-
-    private boolean higherOrEqualPrecedence(String x, String y) {
-        return getPrecedence(x) - getPrecedence(y) >= 0;
-    }
-
-    private int getPrecedence(String x) {
-        switch (x) {
-        case ".":
-        case "log":
-        case "ln":
-        case "\u221A":
-        case "sin":
-        case "cos":
-        case "tan":
-        case "sin\u207B\u00B9":
-        case "cos\u207B\u00B9":
-        case "tan\u207B\u00B9":
-        case "\u221B":
-            return 4;
-        case "-":
-            return 3;
-        case "\u00D7":
-        case "\u00F7":
-            return 2;
-        case "+":
-        case "\u2212":
-            return 1;
-        default:
-            return 0;
         }
     }
 
@@ -725,7 +725,6 @@ public class MainActivity extends AppCompatActivity implements
         case "\u00F7":
         case "+":
         case "\u2212":
-        case ".":
         case "(":
         case ")":
         case "-":
@@ -739,6 +738,7 @@ public class MainActivity extends AppCompatActivity implements
         case "cos\u207B\u00B9":
         case "tan\u207B\u00B9":
         case "\u221B":
+        case "^":
             return true;
         default:
             return false;

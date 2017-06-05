@@ -71,6 +71,9 @@ public class ShiftFragment extends Fragment implements View.OnClickListener {
         case R.id.rightPar:
             mListener.bracketClick(view);
             break;
+        case R.id.equals:
+            mListener.equalClick();
+            break;
         case R.id.ln:
         case R.id.log:
         case R.id.sin:
@@ -81,6 +84,8 @@ public class ShiftFragment extends Fragment implements View.OnClickListener {
         case R.id.arccos:
         case R.id.arctan:
         case R.id.cube_root:
+        case R.id.squared:
+        case R.id.exponent:
             mListener.operatorClick(view);
             break;
         default:
