@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements
                 expression.add("-" + last);
             } else {
                 if (!expression.getLast().equals("-")) {
+                    expression.add(last);
                     expression.add("-");
                 }
             }
@@ -145,18 +146,18 @@ public class MainActivity extends AppCompatActivity implements
 
     /**
      * Handles the pi button, but not finished yet
-     * @param view View containing the pi button
      */
-    public void piClick(View view) {
-        String pi = getTermString(view);
+    public void piClick() {
+        String pi = "\u03C0";
         if (expression.isEmpty()) {
             expression.add(pi);
         } else { // nonempty cases, term is a number
-            if (isOperator(expression.getLast())) { // adding a new number term
+            if (expression.getLast().lastIndexOf(".") != expression.getLast().length() - 1) {
                 expression.add(pi);
             }
         }
         displayFragment.updateDisplay(expression);
+        scrollRight();
     }
 
     /**
@@ -231,6 +232,42 @@ public class MainActivity extends AppCompatActivity implements
                 expression.add("(");
                 parAvailable++;
             }
+        }
+        displayFragment.updateDisplay(expression);
+        scrollRight();
+    }
+
+    public void tenExponent() {
+        if (!expression.isEmpty()) {
+            if (!isOperator(expression.getLast())) {
+                expression.add("\u00D7");
+                expression.add("10");
+                expression.add("^");
+            } else { // last is an operator
+                expression.add("10");
+                expression.add("^");
+            }
+        } else {
+            expression.add("10");
+            expression.add("^");
+        }
+        displayFragment.updateDisplay(expression);
+        scrollRight();
+    }
+
+    public void eExponent() {
+        if (!expression.isEmpty()) {
+            if (!isOperator(expression.getLast())) {
+                expression.add("\u00D7");
+                expression.add("\u212F");
+                expression.add("^");
+            } else { // last is an operator
+                expression.add("\u212F");
+                expression.add("^");
+            }
+        } else {
+            expression.add("\u212F");
+            expression.add("^");
         }
         displayFragment.updateDisplay(expression);
         scrollRight();
@@ -370,6 +407,9 @@ public class MainActivity extends AppCompatActivity implements
         case R.id.cube_root:
             term = "\u221B";
             break;
+        case R.id.factorial:
+            term = "\u0021";
+            break;
         default:
             term = "0";
         }
@@ -380,7 +420,7 @@ public class MainActivity extends AppCompatActivity implements
         LinkedList<String> expanded = new LinkedList<>();
         String last = "";
         for (String s : expression) {
-            if (isPrefixOperator(s)) {
+            if (isPrefixOperator(s) || s.equals("\u03C0")) {
                 if (!last.equals("") && (!isOperator(last) || last.equals(")"))) {
                     expanded.add("\u00D7");
                 }
@@ -500,16 +540,33 @@ public class MainActivity extends AppCompatActivity implements
                 return ln(x);
             case "log":
                 return log(x);
+            case "\u0021":
+                return factorial(x);
             default:
                 return "0";
         }
     }
 
+    private Double getValue(String x) {
+        switch (x) {
+            case "\u03C0":
+                return Math.PI;
+            case "\u212F":
+                return Math.E;
+            default:
+                return Double.parseDouble(x);
+        }
+    }
+
+    //TODO
+    private String factorial(String x) {
+        return "0";
+    }
+
     private String sin(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         if (!rad) {
             d = Math.toRadians(d);
-            System.out.println("hi" + d);
         }
         BigDecimal k = new BigDecimal(Math.sin(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
@@ -517,7 +574,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private String cos(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         if (!rad) {
             d = Math.toRadians(d);
         }
@@ -527,7 +584,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private String tan(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         if (!rad) {
             d = Math.toRadians(d);
         }
@@ -537,7 +594,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private String arcsin(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         if (!rad) {
             d = Math.toRadians(d);
         }
@@ -547,7 +604,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private String arccos(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         if (!rad) {
             d = Math.toRadians(d);
         }
@@ -557,7 +614,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private String arctan(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         if (!rad) {
             d = Math.toRadians(d);
         }
@@ -567,75 +624,75 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private String squareRoot(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         BigDecimal k = new BigDecimal(Math.sqrt(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toPlainString();
     }
 
     private String cubeRoot(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         BigDecimal k = new BigDecimal(Math.cbrt(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toPlainString();
     }
 
     private String log(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         BigDecimal k = new BigDecimal(Math.log10(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toPlainString();
     }
 
     private String ln(String x) {
-        Double d = Double.parseDouble(x);
+        Double d = getValue(x);
         BigDecimal k = new BigDecimal(Math.log(d), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toPlainString();
     }
 
     private String negate(String x) {
-        BigDecimal i = new BigDecimal(x);
+        BigDecimal i = new BigDecimal(getValue(x).toString());
         BigDecimal k = i.negate();
         k = k.stripTrailingZeros();
         return k.toPlainString();
     }
 
     private String multiply(String x, String y) {
-        BigDecimal i = new BigDecimal(x);
-        BigDecimal j = new BigDecimal(y);
+        BigDecimal i = new BigDecimal(getValue(x).toString());
+        BigDecimal j = new BigDecimal(getValue(y).toString());
         BigDecimal k = i.multiply(j);
         k = k.stripTrailingZeros();
         return k.toPlainString();
     }
 
     private String divide(String x, String y) {
-        BigDecimal i = new BigDecimal(x);
-        BigDecimal j = new BigDecimal(y);
+        BigDecimal i = new BigDecimal(getValue(x).toString());
+        BigDecimal j = new BigDecimal(getValue(y).toString());
         BigDecimal k = j.divide(i, MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toPlainString();
     }
 
     private String add(String x, String y) {
-        BigDecimal i = new BigDecimal(x);
-        BigDecimal j = new BigDecimal(y);
+        BigDecimal i = new BigDecimal(getValue(x).toString());
+        BigDecimal j = new BigDecimal(getValue(y).toString());
         BigDecimal k = i.add(j);
         k = k.stripTrailingZeros();
         return k.toPlainString();
     }
 
     private String exponent(String x, String y) {
-        double i = Double.valueOf(x);
-        double j = Double.valueOf(y);
+        double i = getValue(x);
+        double j = getValue(y);
         BigDecimal k = new BigDecimal(Math.pow(j, i), MathContext.DECIMAL64);
         k = k.stripTrailingZeros();
         return k.toPlainString();
     }
 
     private String subtract(String x, String y) {
-        BigDecimal i = new BigDecimal(x);
-        BigDecimal j = new BigDecimal(y);
+        BigDecimal i = new BigDecimal(getValue(x).toString());
+        BigDecimal j = new BigDecimal(getValue(y).toString());
         BigDecimal k = j.subtract(i);
         k = k.stripTrailingZeros();
         return k.toPlainString();
@@ -658,6 +715,7 @@ public class MainActivity extends AppCompatActivity implements
         case "tan\u207B\u00B9":
         case "\u221B":
         case "^":
+        case "\u0021":
             return 4;
         case "-":
             return 3;
@@ -739,6 +797,7 @@ public class MainActivity extends AppCompatActivity implements
         case "tan\u207B\u00B9":
         case "\u221B":
         case "^":
+        case "\u0021":
             return true;
         default:
             return false;

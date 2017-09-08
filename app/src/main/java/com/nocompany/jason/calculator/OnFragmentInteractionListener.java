@@ -13,4 +13,7 @@ public interface OnFragmentInteractionListener {
     void equalClick();
     void bracketClick(View view);
     void radClick();
+    void tenExponent();
+    void piClick();
+    void eExponent();
 }
