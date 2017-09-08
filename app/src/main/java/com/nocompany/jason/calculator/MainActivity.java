@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import java.math.BigInteger;
 import java.math.MathContext;
-import java.util.Iterator;
 import java.util.Stack;
 import java.util.LinkedList;
 

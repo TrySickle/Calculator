@@ -44,12 +44,7 @@ public class DisplayFragment extends Fragment {
         display = (TextView) view.findViewById(R.id.display);
         //System.out.println(display == null);
         scroll = (HorizontalScrollView) view.findViewById(R.id.scroll);
-//        scroll.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-//            @Override
-//            public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-//                scroll.fullScroll(View.FOCUS_RIGHT);
-//            }
-//        });
+
         Toolbar myToolbar = (Toolbar) view.findViewById(R.id.my_toolbar);
         myToolbar.setTitle("");
         ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
