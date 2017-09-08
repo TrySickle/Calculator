@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.Toast;
 
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Iterator;
 import java.util.Stack;
@@ -558,9 +559,32 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    //TODO
     private String factorial(String x) {
-        return "0";
+        if (x.contains(".")) {
+            throw new IllegalArgumentException("Cannot have fractional");
+        }
+        int i = new Integer(x);
+        if (i < 0) {
+            throw new IllegalArgumentException("Cannot have negative factorial");
+        }
+        if (i < 2) {
+            return "1";
+        } else {
+            return recFact(1, i).toString();
+        }
+    }
+
+    private BigInteger recFact(long start, long n) {
+        long i;
+        if (n <= 16) {
+            BigInteger r = BigInteger.valueOf(start);
+            for (i = start + 1; i < start + n; i++) {
+                r = r.multiply(BigInteger.valueOf(i));
+            }
+            return r;
+        }
+        i = n / 2;
+        return recFact(start, i).multiply(recFact(start + i, n - i));
     }
 
     private String sin(String x) {
