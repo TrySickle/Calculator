@@ -411,6 +411,12 @@ public class MainActivity extends AppCompatActivity implements
         case R.id.factorial:
             term = "\u0021";
             break;
+        case R.id.combination:
+            term = "C";
+            break;
+        case R.id.permutation:
+            term = "P";
+            break;
         default:
             term = "0";
         }
@@ -512,6 +518,10 @@ public class MainActivity extends AppCompatActivity implements
             return subtract(x, y);
         case "^":
             return exponent(x, y);
+        case "C":
+            return combination(x, y);
+        case "P":
+            return permutation(x, y);
         default:
             return "0";
         }
@@ -563,7 +573,7 @@ public class MainActivity extends AppCompatActivity implements
         if (x.contains(".")) {
             throw new IllegalArgumentException("Cannot have fractional");
         }
-        int i = new Integer(x);
+        int i = Integer.valueOf(x);
         if (i < 0) {
             throw new IllegalArgumentException("Cannot have negative factorial");
         }
@@ -585,6 +595,35 @@ public class MainActivity extends AppCompatActivity implements
         }
         i = n / 2;
         return recFact(start, i).multiply(recFact(start + i, n - i));
+    }
+
+    private String combination(String x, String y) {
+        if (x.contains(".") || y.contains(".")) {
+            throw new IllegalArgumentException("Cannot have fractional");
+        }
+        int n = Integer.valueOf(y);
+        int r = Integer.valueOf(x);
+        if (n < 0 || r < 0) {
+            throw new IllegalArgumentException("Cannot have negatives");
+        }
+        BigInteger numerator = new BigInteger(factorial(y));
+        BigInteger denominator = new BigInteger(factorial(x)).multiply(new BigInteger(factorial(Integer.toString((Integer.valueOf(y) - Integer.valueOf(x))))));
+        return numerator.divide(denominator).toString();
+    }
+
+    private String permutation(String x, String y) {
+        System.out.println("x=" + x + "y=" + y);
+        if (x.contains(".") || y.contains(".")) {
+            throw new IllegalArgumentException("Cannot have fractional");
+        }
+        int n = Integer.valueOf(y);
+        int r = Integer.valueOf(x);
+        if (n < 0 || r < 0) {
+            throw new IllegalArgumentException("Cannot have negatives");
+        }
+        BigInteger numerator = new BigInteger(factorial(y));
+        BigInteger denominator = new BigInteger(factorial(Integer.toString((Integer.valueOf(y) - Integer.valueOf(x)))));
+        return numerator.divide(denominator).toString();
     }
 
     private String sin(String x) {
@@ -740,6 +779,8 @@ public class MainActivity extends AppCompatActivity implements
         case "\u221B":
         case "^":
         case "\u0021":
+        case "C":
+        case "P":
             return 4;
         case "-":
             return 3;
@@ -763,6 +804,8 @@ public class MainActivity extends AppCompatActivity implements
             case "\u207F":
             case "\u00B2":
             case "^":
+            case "C":
+            case "P":
                 return true;
             case "-":
             case "log":
@@ -822,6 +865,8 @@ public class MainActivity extends AppCompatActivity implements
         case "\u221B":
         case "^":
         case "\u0021":
+        case "C":
+        case "P":
             return true;
         default:
             return false;

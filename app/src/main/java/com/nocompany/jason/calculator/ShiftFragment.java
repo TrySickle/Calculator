@@ -96,6 +96,8 @@ public class ShiftFragment extends Fragment implements View.OnClickListener {
         case R.id.squared:
         case R.id.exponent:
         case R.id.factorial:
+        case R.id.combination:
+        case R.id.permutation:
             mListener.operatorClick(view);
             break;
         default:
