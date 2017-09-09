@@ -224,6 +224,8 @@ public class MainActivity extends AppCompatActivity implements
                     expression.add(operator);
                     expression.add("(");
                     parAvailable++;
+                } else if (expression.getLast().equals("!")) {
+                    expression.add(operator);
                 }
             }
         } else {
@@ -425,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements
     private LinkedList<String> expand(LinkedList<String> exp) {
         LinkedList<String> expanded = new LinkedList<>();
         String last = "";
-        for (String s : expression) {
+        for (String s : exp) {
             if (isPrefixOperator(s) || s.equals("\u03C0")) {
                 if (!last.equals("") && (!isOperator(last) || last.equals(")"))) {
                     expanded.add("\u00D7");
